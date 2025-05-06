@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient_main">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            app:title="">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Stats"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/date_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="--- April 30"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="italic"
+                android:alpha="0.7" />
+
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:id="@+id/content_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/no_data_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No stats available for today"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:padding="16dp"
+                android:visibility="gone"/>
+
+            <!-- Medal Achievement Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/medal_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:background="@drawable/bg_gradient_deep_work">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <FrameLayout
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_circle_white_transparent"
+                        android:layout_marginEnd="16dp">
+
+                        <ImageView
+                            android:id="@+id/medal_icon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_brainn"
+                            app:tint="@android:color/white" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/medal_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Deep Work Master"
+                            android:textColor="@android:color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/medal_description"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Exceptional focus on deep, meaningful work"
+                            android:textColor="@android:color/white"
+                            android:alpha="0.9"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_medal"
+                        app:tint="@color/medal_gold" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Base Metrics -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Base Metrics"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:alpha="0.7"
+                android:layout_marginBottom="8dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/base_metrics_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="2"
+                android:layout_marginBottom="16dp">
+
+                <!-- Base Metric Cards -->
+                <include
+                    android:id="@+id/metric_completion"
+                    layout="@layout/item_metric_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
+                    android:id="@+id/metric_score"
+                    layout="@layout/item_metric_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
+                    android:id="@+id/metric_efficiency"
+                    layout="@layout/item_metric_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
+                    android:id="@+id/metric_focus"
+                    layout="@layout/item_metric_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </androidx.recyclerview.widget.RecyclerView>
+
+            <!-- Advanced Metrics -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Advanced Metrics"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:alpha="0.7"
+                android:layout_marginBottom="8dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/advanced_metrics_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="3"
+                android:layout_marginBottom="16dp">
+
+                <!-- Advanced Metric Cards -->
+                <include
+                    android:id="@+id/metric_depth_ratio"
+                    layout="@layout/item_advanced_metric_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
+                    android:id="@+id/metric_task_quality"
+                    layout="@layout/item_advanced_metric_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
+                    android:id="@+id/metric_efficiency_score"
+                    layout="@layout/item_advanced_metric_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </androidx.recyclerview.widget.RecyclerView>
+
+            <!-- Charts Section -->
+            <LinearLayout
+                android:id="@+id/charts_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tab_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_tab_layout"
+                    app:tabBackground="@drawable/tab_selector"
+                    app:tabGravity="fill"
+                    app:tabIndicatorHeight="0dp"
+                    app:tabMode="fixed"
+                    app:tabRippleColor="@android:color/transparent"
+                    app:tabSelectedTextColor="@android:color/white"
+                    app:tabTextColor="@android:color/white"
+                    android:layout_marginBottom="16dp" />
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/view_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="400dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Loading View -->
+    <FrameLayout
+        android:id="@+id/loading_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_gradient_main">
+
+        <ProgressBar
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:indeterminateTint="@android:color/white" />
+    </FrameLayout>
+
+<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
+<!--        android:id="@+id/bottom_navigation"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:menu="@menu/bottom_nav_menu" />-->
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/card_background_dark"
+        app:menu="@menu/bottom_nav_menu" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

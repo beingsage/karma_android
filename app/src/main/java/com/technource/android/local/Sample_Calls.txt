@@ -1,0 +1,210 @@
+# Sample Calls for TaskDao CRUD Operations
+
+This document provides sample calls for each of the nine CRUD operations in TaskDao.kt, using a sample TaskEntity. Each operation shows the input, what the call looks like, and the expected output (if any).
+
+---
+
+## Sample TaskEntity Used in Examples
+- **id**: "task123"
+- **title**: "Meeting with Team"
+- **category**: "work"
+- **color**: "#FF6B6B"
+- **startTime**: 1714753800000 (May 2, 2025, 8:40 PM IST, as epoch milliseconds)
+- **endTime**: 1714755600000 (May 2, 2025, 9:10 PM IST, as epoch milliseconds)
+- **duration**: 1800 (30 minutes in seconds)
+- **subtasks**: List with one SubTask ("Prepare Agenda", Binary type, completed)
+- **taskScore**: 10.0
+- **taskId**: "task123_id"
+- **completionStatus**: 1.0
+- **timestamp**: Current time in epoch milliseconds (e.g., 1735737600000)
+
+---
+
+## 1. insertTasks
+- **Accepts**: List<TaskEntity>
+- **Returns**: Nothing (Unit)
+- **Sample Call**:
+  ```
+  lifecycleScope.launch {
+      val tasks = listOf(sampleTaskEntity)
+      taskDao.insertTasks(tasks)
+  }
+  ```
+- **What Happens**:
+  - Inserts the sampleTaskEntity into the "tasks" table.
+  - If a task with ID "task123" already exists, it will be replaced.
+- **Output**:
+  - None (Unit)
+
+---
+
+## 2. updateTask
+- **Accepts**: TaskEntity
+- **Returns**: Nothing (Unit)
+- **Sample Call**:
+  ```
+  lifecycleScope.launch {
+      val updatedTask = sampleTaskEntity.copy(completionStatus = 0.5f) // Update completion status
+      taskDao.updateTask(updatedTask)
+  }
+  ```
+- **What Happens**:
+  - Updates the task with ID "task123" in the database.
+  - Changes the completionStatus to 0.5, leaving other fields unchanged.
+- **Output**:
+  - None (Unit)
+
+---
+
+## 3. getTasks
+- **Accepts**: Nothing
+- **Returns**: List<TaskEntity>
+- **Sample Call**:
+  ```
+  lifecycleScope.launch {
+      val allTasks = taskDao.getTasks()
+      Log.d("Tasks", allTasks.toString())
+  }
+  ```
+- **What Happens**:
+  - Retrieves all tasks from the "tasks" table.
+- **Sample Output**:
+  - Assuming only sampleTaskEntity is in the database:
+    ```
+    [TaskEntity(id="task123", title="Meeting with Team", category="work", color="#FF6B6B", startTime=1714753800000, endTime=1714755600000, duration=1800, subtasks=[SubTask(id="subtask1", ...)], taskScore=10.0, taskId="task123_id", completionStatus=0.5, timestamp=1735737600000)]
+    ```
+
+---
+
+## 4. deleteExpired
+- **Accepts**: Long
+- **Returns**: Nothing (Unit)
+- **Sample Call**:
+  ```
+  lifecycleScope.launch {
+      val cutoffTime = System.currentTimeMillis() - 24 * 60 * 60 * 1000 // 24 hours ago
+      taskDao.deleteExpired(cutoffTime)
+  }
+  ```
+- **What Happens**:
+  - Deletes tasks where the timestamp is less than cutoffTime.
+  - If sampleTaskEntity's timestamp (e.g., 1735737600000) is older than cutoffTime, it will be deleted.
+- **Output**:
+  - None (Unit)
+
+---
+
+## 5. clearTasks
+- **Accepts**: Nothing
+- **Returns**: Nothing (Unit)
+- **Sample Call**:
+  ```
+  lifecycleScope.launch {
+      taskDao.clearTasks()
+  }
+  ```
+- **What Happens**:
+  - Deletes all tasks from the "tasks" table, including sampleTaskEntity.
+- **Output**:
+  - None (Unit)
+
+---
+
+## 6. getTasksFlow
+- **Accepts**: Nothing
+- **Returns**: Flow<List<TaskEntity>>
+- **Sample Call**:
+  ```
+  lifecycleScope.launch {
+      taskDao.getTasksFlow().collect { tasks ->
+          Log.d("TasksFlow", tasks.toString())
+      }
+  }
+  ```
+- **What Happens**:
+  - Emits the current list of tasks whenever the "tasks" table changes.
+- **Sample Output**:
+  - Assuming sampleTaskEntity is in the database:
+    ```
+    [TaskEntity(id="task123", title="Meeting with Team", category="work", color="#FF6B6B", startTime=1714753800000, endTime=1714755600000, duration=1800, subtasks=[SubTask(id="subtask1", ...)], taskScore=10.0, taskId="task123_id", completionStatus=0.5, timestamp=1735737600000)]
+    ```
+  - If a new task is inserted, the Flow will emit the updated list.
+
+---
+
+## 7. getTasksAround
+- **Accepts**: String (currentTaskId), Int (limit)
+- **Returns**: List<TaskEntity>
+- **Sample Call**:
+  ```
+  lifecycleScope.launch {
+      val nearbyTasks = taskDao.getTasksAround(currentTaskId = "task123", limit = 10)
+      Log.d("NearbyTasks", nearbyTasks.toString())
+  }
+  ```
+- **What Happens**:
+  - Fetches up to 10 tasks centered around the task with ID "task123".
+  - Retrieves 5 tasks before and 5 tasks after (or fewer if not enough tasks exist) based on startTime.
+- **Sample Output**:
+  - Assuming only sampleTaskEntity exists:
+    ```
+    [TaskEntity(id="task123", title="Meeting with Team", category="work", color="#FF6B6B", startTime=1714753800000, endTime=1714755600000, duration=1800, subtasks=[SubTask(id="subtask1", ...)], taskScore=10.0, taskId="task123_id", completionStatus=0.5, timestamp=1735737600000)]
+    ```
+  - If more tasks exist, it would include tasks with startTimes before and after 1714753800000.
+
+---
+
+## 8. getTodayTasks
+- **Accepts**: Long (startTime), Long (endTime)
+- **Returns**: List<TaskEntity>
+- **Sample Call**:
+  ```
+  lifecycleScope.launch {
+      val start = DateFormatter.getStartOfDayMillis() // May 2, 2025, 00:00 IST
+      val end = DateFormatter.getStartOfNextDayMillis() // May 3, 2025, 00:00 IST
+      val todayTasks = taskDao.getTodayTasks(start, end)
+      Log.d("TodayTasks", todayTasks.toString())
+  }
+  ```
+- **What Happens**:
+  - Fetches tasks where startTime is between start and end (May 2, 2025, 00:00 to May 3, 2025, 00:00 IST).
+  - sampleTaskEntity's startTime (1714753800000, 8:40 PM on May 2) falls within this range, so it will be included.
+- **Sample Output**:
+  - ```
+    [TaskEntity(id="task123", title="Meeting with Team", category="work", color="#FF6B6B", startTime=1714753800000, endTime=1714755600000, duration=1800, subtasks=[SubTask(id="subtask1", ...)], taskScore=10.0, taskId="task123_id", completionStatus=0.5, timestamp=1735737600000)]
+    ```
+
+---
+
+## 9. getTodayTasksFlow
+- **Accepts**: Long (startTime), Long (endTime)
+- **Returns**: Flow<List<TaskEntity>>
+- **Sample Call**:
+  ```
+  lifecycleScope.launch {
+      val start = DateFormatter.getStartOfDayMillis() // May 2, 2025, 00:00 IST
+      val end = DateFormatter.getStartOfNextDayMillis() // May 3, 2025, 00:00 IST
+      taskDao.getTodayTasksFlow(start, end).collect { tasks ->
+          Log.d("TodayTasksFlow", tasks.toString())
+      }
+  }
+  ```
+- **What Happens**:
+  - Emits a list of tasks for May 2, 2025, whenever the "tasks" table changes.
+  - sampleTaskEntity will be included in the emitted list.
+- **Sample Output**:
+  - ```
+    [TaskEntity(id="task123", title="Meeting with Team", category="work", color="#FF6B6B", startTime=1714753800000, endTime=1714755600000, duration=1800, subtasks=[SubTask(id="subtask1", ...)], taskScore=10.0, taskId="task123_id", completionStatus=0.5, timestamp=1735737600000)]
+    ```
+  - If a new task for May 2, 2025, is inserted, the Flow will emit the updated list.
+
+---
+
+## Notes
+- **TaskEntity Fields**: The sample TaskEntity includes all fields as defined in TaskEntity.kt (id, title, startTime as Long, etc.).
+- **DateFormatter**: Used to set startTime and endTime in the sample TaskEntity and for time range queries in getTodayTasks and getTodayTasksFlow.
+- **Coroutine Scope**: All suspend functions (insertTasks, updateTask, getTasks, etc.) are called within a coroutine scope (lifecycleScope.launch).
+- **Flow Usage**: Flow operations (getTasksFlow, getTodayTasksFlow) are collected to observe changes reactively.
+- **DefaultTaskEntity**: The operations shown are for TaskEntity. DefaultTaskDao would have similar operations for DefaultTaskEntity, but they are not included in this sample.
+
+This demonstrates how each operation interacts with TaskEntity in a practical scenario.

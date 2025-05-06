@@ -1,0 +1,26 @@
+
+> Configure project :app
+ksp-2.0.20-1.0.24 is too old for kotlin-2.1.0. Please upgrade ksp or downgrade kotlin-gradle-plugin to 2.0.20.
+ksp-2.0.20-1.0.24 is too old for kotlin-2.1.0. Please upgrade ksp or downgrade kotlin-gradle-plugin to 2.0.20.
+ksp-2.0.20-1.0.24 is too old for kotlin-2.1.0. Please upgrade ksp or downgrade kotlin-gradle-plugin to 2.0.20.
+ksp-2.0.20-1.0.24 is too old for kotlin-2.1.0. Please upgrade ksp or downgrade kotlin-gradle-plugin to 2.0.20.
+ksp-2.0.20-1.0.24 is too old for kotlin-2.1.0. Please upgrade ksp or downgrade kotlin-gradle-plugin to 2.0.20.
+ksp-2.0.20-1.0.24 is too old for kotlin-2.1.0. Please upgrade ksp or downgrade kotlin-gradle-plugin to 2.0.20.
+ksp-2.0.20-1.0.24 is too old for kotlin-2.1.0. Please upgrade ksp or downgrade kotlin-gradle-plugin to 2.0.20.
+ksp-2.0.20-1.0.24 is too old for kotlin-2.1.0. Please upgrade ksp or downgrade kotlin-gradle-plugin to 2.0.20.
+ksp-2.0.20-1.0.24 is too old for kotlin-2.1.0. Please upgrade ksp or downgrade kotlin-gradle-plugin to 2.0.20.
+ksp-2.0.20-1.0.24 is too old for kotlin-2.1.0. Please upgrade ksp or downgrade kotlin-gradle-plugin to 2.0.20.
+
+> Task :app:dependencies
+
+------------------------------------------------------------
+Project ':app'
+------------------------------------------------------------
+
+kspDebug - KSP dependencies for the 'debug (Android)' source set. (n)
+No dependencies
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+BUILD SUCCESSFUL in 1s
+1 actionable task: 1 executed

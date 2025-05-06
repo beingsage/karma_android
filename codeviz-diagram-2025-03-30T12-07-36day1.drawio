@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+      <mxfile host="codeviz.app" modified="2025-03-30T12:07:36.575Z" agent="CodeViz Exporter" version="14.6.5" type="device">
+        <diagram id="codeviz-diagram" name="System Diagram">
+          <mxGraphModel dx="1000" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+            <root>
+              <mxCell id="0"/>
+              <mxCell id="1" parent="0"/>
+              <mxCell id="subGraph6" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="subGraph7">
+                <mxGeometry x="50" y="175" width="380" height="220" as="geometry"/>
+              </mxCell>
+              <mxCell id="subGraph6_label" value="Background Processing" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="subGraph7">
+                <mxGeometry x="58" y="183" width="304" height="24" as="geometry"/>
+              </mxCell>
+<mxCell id="Network" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="subGraph7">
+                <mxGeometry x="471" y="95" width="260" height="320" as="geometry"/>
+              </mxCell>
+              <mxCell id="Network_label" value="Network" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="subGraph7">
+                <mxGeometry x="479" y="103" width="184" height="24" as="geometry"/>
+              </mxCell>
+<mxCell id="subGraph4" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="subGraph7">
+                <mxGeometry x="260" y="435" width="400" height="320" as="geometry"/>
+              </mxCell>
+              <mxCell id="subGraph4_label" value="Local Storage" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="subGraph7">
+                <mxGeometry x="268" y="443" width="324" height="24" as="geometry"/>
+              </mxCell>
+<mxCell id="ViewModels" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="subGraph3">
+                <mxGeometry x="50" y="440" width="520" height="220" as="geometry"/>
+              </mxCell>
+              <mxCell id="ViewModels_label" value="ViewModels" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="subGraph3">
+                <mxGeometry x="58" y="448" width="444" height="24" as="geometry"/>
+              </mxCell>
+<mxCell id="subGraph1" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="subGraph3">
+                <mxGeometry x="550" y="448" width="660" height="220" as="geometry"/>
+              </mxCell>
+              <mxCell id="subGraph1_label" value="UI Components" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="subGraph3">
+                <mxGeometry x="558" y="456" width="584" height="24" as="geometry"/>
+              </mxCell>
+<mxCell id="Screens" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="subGraph3">
+                <mxGeometry x="300" y="205" width="800" height="220" as="geometry"/>
+              </mxCell>
+              <mxCell id="Screens_label" value="Screens" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="subGraph3">
+                <mxGeometry x="308" y="213" width="724" height="24" as="geometry"/>
+              </mxCell>
+<mxCell id="Utils" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="subGraph9">
+                <mxGeometry x="804" y="900" width="660" height="220" as="geometry"/>
+              </mxCell>
+              <mxCell id="Utils_label" value="Utils" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="subGraph9">
+                <mxGeometry x="812" y="908" width="584" height="24" as="geometry"/>
+              </mxCell>
+<mxCell id="subGraph7" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="subGraph9">
+                <mxGeometry x="73" y="915" width="741" height="760" as="geometry"/>
+              </mxCell>
+              <mxCell id="subGraph7_label" value="Data Layer" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="subGraph9">
+                <mxGeometry x="81" y="923" width="665" height="24" as="geometry"/>
+              </mxCell>
+<mxCell id="subGraph3" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="subGraph9">
+                <mxGeometry x="73" y="115" width="1220" height="688" as="geometry"/>
+              </mxCell>
+              <mxCell id="subGraph3_label" value="UI Layer" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="subGraph9">
+                <mxGeometry x="81" y="123" width="1144" height="24" as="geometry"/>
+              </mxCell>
+<mxCell id="subGraph10" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="1">
+                <mxGeometry x="600.5" y="1997" width="240" height="220" as="geometry"/>
+              </mxCell>
+              <mxCell id="subGraph10_label" value="External Systems" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="1">
+                <mxGeometry x="608.5" y="2005" width="164" height="24" as="geometry"/>
+              </mxCell>
+<mxCell id="subGraph9" value="" style="html=1;whiteSpace=wrap;container=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;fillOpacity=20;strokeWidth=2;containerType=none;recursiveResize=0;movable=1;resizable=1;autosize=0;dropTarget=0" vertex="1" parent="1">
+                <mxGeometry x="67" y="222" width="1439" height="1837" as="geometry"/>
+              </mxCell>
+              <mxCell id="subGraph9_label" value="Android Application" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;labelBackgroundColor=white;spacing=5" vertex="1" parent="1">
+                <mxGeometry x="75" y="230" width="1363" height="24" as="geometry"/>
+              </mxCell>
+              <mxCell id="User" value="User" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="1">
+                    <mxGeometry x="695" y="12" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="MainActivity" value="MainActivity&lt;br&gt;Kotlin/Android" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="subGraph3">
+                    <mxGeometry x="610" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="HomeScreen" value="HomeScreen&lt;br&gt;Jetpack Compose" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="Screens">
+                    <mxGeometry x="460" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="DetailScreen" value="DetailScreen&lt;br&gt;Jetpack Compose" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="Screens">
+                    <mxGeometry x="320" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="SettingsScreen" value="SettingsScreen&lt;br&gt;Jetpack Compose" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="Screens">
+                    <mxGeometry x="180" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="StatsScreen" value="StatsScreen&lt;br&gt;Jetpack Compose" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="Screens">
+                    <mxGeometry x="600" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="MiscScreen" value="MiscellaneousScreen&lt;br&gt;Jetpack Compose" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="Screens">
+                    <mxGeometry x="40" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="TaskCard" value="TaskCard&lt;br&gt;Compose UI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="subGraph1">
+                    <mxGeometry x="180" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="TaskTimer" value="TaskTimer&lt;br&gt;Compose UI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="subGraph1">
+                    <mxGeometry x="320" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="TaskWidget" value="TaskWidget&lt;br&gt;Compose UI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="subGraph1">
+                    <mxGeometry x="40" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="TimelineView" value="TimelineView&lt;br&gt;Compose UI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="subGraph1">
+                    <mxGeometry x="460" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="TaskViewModel" value="TaskViewModel&lt;br&gt;ViewModel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="ViewModels">
+                    <mxGeometry x="180" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="SettingsViewModel" value="SettingsViewModel&lt;br&gt;ViewModel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="ViewModels">
+                    <mxGeometry x="40" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="StatsViewModel" value="StatsViewModel&lt;br&gt;ViewModel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="ViewModels">
+                    <mxGeometry x="320" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="AppDatabase" value="AppDatabase&lt;br&gt;Room" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="subGraph4">
+                    <mxGeometry x="60" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="TaskDao" value="TaskDao&lt;br&gt;Room" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="subGraph4">
+                    <mxGeometry x="40" y="220" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="PreferencesManager" value="PreferencesManager&lt;br&gt;SharedPreferences" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="subGraph4">
+                    <mxGeometry x="200" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="ApiService" value="ApiService&lt;br&gt;Retrofit" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="Network">
+                    <mxGeometry x="60" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="NetworkModule" value="NetworkModule&lt;br&gt;Dagger/Hilt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="Network">
+                    <mxGeometry x="40" y="220" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="TaskSyncWorker" value="TaskSyncBackendWorker&lt;br&gt;WorkManager" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="subGraph6">
+                    <mxGeometry x="180" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="TaskIterator" value="TaskIterator&lt;br&gt;Kotlin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="subGraph6">
+                    <mxGeometry x="40" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="ChartUtils" value="ChartUtils&lt;br&gt;Kotlin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="Utils">
+                    <mxGeometry x="320" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="DateFormatter" value="DateFormatter&lt;br&gt;Kotlin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="Utils">
+                    <mxGeometry x="180" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="SystemLogger" value="SystemLogger&lt;br&gt;Kotlin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="Utils">
+                    <mxGeometry x="40" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="VibrationUtils" value="VibrationUtils&lt;br&gt;Android" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="Utils">
+                    <mxGeometry x="460" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+<mxCell id="Backend" value="Backend API&lt;br&gt;REST" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5" vertex="1" parent="subGraph10">
+                    <mxGeometry x="40" y="120" width="120" height="60" as="geometry"/>
+                  </mxCell>
+              <mxCell id="edge-L_User_MainActivity_0" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="User" target="MainActivity">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_User_MainActivity_0_label" value="interacts with" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_User_MainActivity_0">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_MainActivity_HomeScreen_1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="MainActivity" target="HomeScreen">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_MainActivity_HomeScreen_1_label" value="navigates to" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_MainActivity_HomeScreen_1">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_MainActivity_DetailScreen_2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="MainActivity" target="DetailScreen">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_MainActivity_DetailScreen_2_label" value="navigates to" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_MainActivity_DetailScreen_2">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_MainActivity_SettingsScreen_3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="MainActivity" target="SettingsScreen">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_MainActivity_SettingsScreen_3_label" value="navigates to" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_MainActivity_SettingsScreen_3">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_MainActivity_StatsScreen_4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="MainActivity" target="StatsScreen">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_MainActivity_StatsScreen_4_label" value="navigates to" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_MainActivity_StatsScreen_4">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_MainActivity_MiscScreen_5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="MainActivity" target="MiscScreen">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_MainActivity_MiscScreen_5_label" value="navigates to" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_MainActivity_MiscScreen_5">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_HomeScreen_TaskCard_6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="HomeScreen" target="TaskCard">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_HomeScreen_TaskCard_6_label" value="uses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_HomeScreen_TaskCard_6">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_HomeScreen_TaskTimer_7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="HomeScreen" target="TaskTimer">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_HomeScreen_TaskTimer_7_label" value="uses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_HomeScreen_TaskTimer_7">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_HomeScreen_TimelineView_8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="HomeScreen" target="TimelineView">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_HomeScreen_TimelineView_8_label" value="uses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_HomeScreen_TimelineView_8">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_DetailScreen_TaskWidget_9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="DetailScreen" target="TaskWidget">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_DetailScreen_TaskWidget_9_label" value="uses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_DetailScreen_TaskWidget_9">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_TaskViewModel_AppDatabase_10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="TaskViewModel" target="AppDatabase">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_TaskViewModel_AppDatabase_10_label" value="reads/writes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_TaskViewModel_AppDatabase_10">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_TaskViewModel_ApiService_11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="TaskViewModel" target="ApiService">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_TaskViewModel_ApiService_11_label" value="uses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_TaskViewModel_ApiService_11">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_SettingsViewModel_PreferencesManager_12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="SettingsViewModel" target="PreferencesManager">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_SettingsViewModel_PreferencesManager_12_label" value="uses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_SettingsViewModel_PreferencesManager_12">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_StatsViewModel_ChartUtils_13" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="StatsViewModel" target="ChartUtils">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_StatsViewModel_ChartUtils_13_label" value="uses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_StatsViewModel_ChartUtils_13">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_AppDatabase_TaskDao_14" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="AppDatabase" target="TaskDao">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_AppDatabase_TaskDao_14_label" value="accessed via" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_AppDatabase_TaskDao_14">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_ApiService_NetworkModule_15" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="ApiService" target="NetworkModule">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_ApiService_NetworkModule_15_label" value="configured by" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_ApiService_NetworkModule_15">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_ApiService_Backend_16" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="ApiService" target="Backend">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_ApiService_Backend_16_label" value="communicates with" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_ApiService_Backend_16">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_TaskSyncWorker_Backend_17" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="TaskSyncWorker" target="Backend">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_TaskSyncWorker_Backend_17_label" value="syncs with" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_TaskSyncWorker_Backend_17">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_TaskSyncWorker_AppDatabase_18" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="TaskSyncWorker" target="AppDatabase">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_TaskSyncWorker_AppDatabase_18_label" value="updates" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_TaskSyncWorker_AppDatabase_18">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_TaskIterator_TaskDao_19" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="TaskIterator" target="TaskDao">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_TaskIterator_TaskDao_19_label" value="reads" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_TaskIterator_TaskDao_19">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_TaskViewModel_DateFormatter_20" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="TaskViewModel" target="DateFormatter">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_TaskViewModel_DateFormatter_20_label" value="uses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_TaskViewModel_DateFormatter_20">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_TaskViewModel_SystemLogger_21" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="TaskViewModel" target="SystemLogger">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_TaskViewModel_SystemLogger_21_label" value="uses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_TaskViewModel_SystemLogger_21">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_TaskTimer_VibrationUtils_22" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="TaskTimer" target="VibrationUtils">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_TaskTimer_VibrationUtils_22_label" value="uses" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_TaskTimer_VibrationUtils_22">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+<mxCell id="edge-L_TaskSyncWorker_MainActivity_23" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#808080;strokeWidth=2;jumpStyle=arc;jumpSize=10;spacing=15;labelBackgroundColor=white;labelBorderColor=none" edge="1" parent="1" source="TaskSyncWorker" target="MainActivity">
+                  <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge-L_TaskSyncWorker_MainActivity_23_label" value="scheduled by" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="edge-L_TaskSyncWorker_MainActivity_23">
+                  <mxGeometry x="-0.2" y="10" relative="1" as="geometry">
+                    <mxPoint as="offset"/>
+                  </mxGeometry>
+                </mxCell>
+            </root>
+          </mxGraphModel>
+        </diagram>
+      </mxfile>

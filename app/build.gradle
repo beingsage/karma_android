@@ -1,0 +1,202 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.google.dagger.hilt.android' // Added for Hilt
+    id 'org.jetbrains.kotlin.plugin.compose'  // Added explicitly here
+    id 'kotlin-parcelize'
+    id 'com.google.devtools.ksp'
+}
+
+android {
+    namespace 'com.technource.android'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.technource.android"
+        minSdk 26
+        //noinspection OldTargetApisa
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+        aaptOptions {
+            noCompress "ppn" // Important so .ppn files aren't compressed
+        }
+    }
+
+    sourceSets {
+        main {
+            assets.srcDirs = ['src/main/assets']
+        }
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField "boolean", "DEBUG", "true"
+        }
+        release {
+            buildConfigField "boolean", "DEBUG", "false"
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+
+    buildFeatures {
+        dataBinding true
+        viewBinding true
+        compose true
+        buildConfig true
+    }
+
+//
+//    packaging {
+//        resources {
+//            excludes += '/META-INF/{AL2.0,LGPL2.0}'
+//        }
+//    }
+}
+
+configurations.configureEach {
+    resolutionStrategy {
+        force "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0"
+    }
+}
+
+dependencies {
+    // Kotlin and Core
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.0.20"
+//    kapt "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.9.0"
+    implementation 'androidx.core:core:1.15.0'
+    implementation 'androidx.core:core-ktx:1.15.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.activity:activity-ktx:1.10.1'
+
+    // UI Components (XML)
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.annotation:annotation-experimental:1.4.1'
+    implementation 'androidx.test.services:storage:1.5.0'
+    implementation "androidx.compose.material3:material3:1.3.2"
+    implementation "androidx.compose.material:material:1.8.0"
+    implementation "androidx.navigation:navigation-compose:2.8.9"
+    implementation "androidx.compose.material3:material3-adaptive-navigation-suite:1.3.2"
+    implementation "androidx.compose.material3:material3-window-size-class:1.3.2"
+    implementation "androidx.compose.material:material-icons-extended:1.7.8"
+
+
+    // Room
+    implementation "androidx.room:room-runtime:2.7.1"
+    implementation "androidx.room:room-ktx:2.7.1"
+    implementation 'androidx.compose.foundation:foundation-android:1.8.0'
+    implementation 'androidx.hilt:hilt-common:1.2.0'
+    implementation 'androidx.datastore:datastore-core-android:1.1.5'
+    implementation 'androidx.datastore:datastore-preferences-core-android:1.2.0-alpha01'
+    implementation 'androidx.compose.runtime:runtime-livedata:1.8.0'
+    implementation 'androidx.games:games-activity:4.0.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    androidTestImplementation 'org.testng:testng:6.9.6'
+    ksp("androidx.room:room-compiler:2.7.1") // Changed from kapt
+
+    // WorkManager
+    implementation "androidx.work:work-runtime-ktx:2.10.1"
+
+    // Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1"
+
+    // Compose
+    def compose_version = "1.7.8"
+    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.ui:ui-graphics:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
+    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation "androidx.activity:activity-compose:1.10.1"
+
+
+    // Lifecycle and ViewModel for Compose
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.7"
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:2.8.7"
+
+    // Testing
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+    debugImplementation "androidx.compose.ui:ui-test-manifest:1.8.0"
+
+    // Third-Party Libraries
+    implementation 'dev.b3nedikt.applocale:applocale:3.0.0'
+    implementation 'dev.b3nedikt.reword:reword:4.0.2'
+    implementation 'io.github.chaosleung:pinview:1.4.4'
+    implementation 'com.github.bumptech.glide:glide:4.14.2'
+    ksp 'com.github.bumptech.glide:compiler:4.14.2'
+    implementation 'com.github.dhaval2404:imagepicker:2.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.7"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1"
+    implementation "com.google.dagger:hilt-android:2.55"
+    ksp("com.google.dagger:hilt-android-compiler:2.55")
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
+    implementation "androidx.hilt:hilt-work:1.2.0"
+
+
+    // Network dependencies
+    implementation "com.squareup.okhttp3:logging-interceptor:4.12.0"
+    implementation "androidx.hilt:hilt-navigation-compose:1.2.0"
+
+    implementation "androidx.datastore:datastore-preferences:1.1.5"
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    //voice commands hot word
+    implementation 'ai.picovoice:porcupine-android:3.0.1'
+
+    // media commands
+    implementation 'androidx.media:media:1.7.0'
+
+    // testing functions
+    testImplementation "org.junit.jupiter:junit-jupiter:5.10.0"
+    testImplementation "org.robolectric:robolectric:4.10.3"
+    testImplementation "io.mockk:mockk:1.13.9"
+    testImplementation "androidx.room:room-testing:2.7.1"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1"
+    testImplementation 'junit:junit:4.13.2'
+
+
+    androidTestImplementation "io.mockk:mockk-android:1.13.9"  // For instrumentation tests
+
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
+
+    // media notifications
+    implementation "androidx.media:media:1.7.0"
+
+
+    //fragments
+    implementation "androidx.fragment:fragment-ktx:1.8.6"
+
+    //home-screen
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
+
+}

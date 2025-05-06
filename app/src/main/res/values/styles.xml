@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryVariant">@color/accentColor</item>
+        <item name="backgroundColor">@color/backgroundColor</item>
+    </style>
+    <style name="Theme.AndroidKotlinBoilerplate" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+    </style>
+    <style name="NotificationTitle" parent="TextAppearance.Compat.Notification.Title">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="NotificationText" parent="TextAppearance.Compat.Notification">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/gray</item>
+    </style>
+    <!-- Tab Text Style -->
+    <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+    </style>
+</resources>

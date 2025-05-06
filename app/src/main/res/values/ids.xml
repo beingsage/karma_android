@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="taskTitle" type="id" />
+    <item name="taskDuration" type="id" />
+    <item name="taskDescription" type="id" />
+</resources>

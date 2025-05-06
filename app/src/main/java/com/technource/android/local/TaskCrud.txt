@@ -1,0 +1,206 @@
+# CRUD Operations for TaskDao (TaskEntity and DefaultTaskEntity)
+
+This document details the nine CRUD operations defined in TaskDao.kt for managing TaskEntity (and indirectly DefaultTaskEntity via DefaultTaskDao). Each operation includes what it accepts as input, what it returns, and its purpose.
+
+---
+
+## 1. insertTasks
+- **Operation**: Insert or replace a list of tasks into the database.
+- **Entity Affected**: TaskEntity
+- **Accepts**:
+  - `tasks: List<TaskEntity>` - A list of TaskEntity objects to insert. Each TaskEntity contains fields like id (String), title (String), startTime (Long), endTime (Long), etc.
+- **Returns**:
+  - Nothing (this is a suspend function, so it returns Unit in Kotlin).
+- **Purpose**:
+  - Inserts a new list of tasks into the "tasks" table. If a task with the same ID already exists (due to the @PrimaryKey), it will be replaced (OnConflictStrategy.REPLACE).
+- **Example Usage**:
+  - Used by TaskPopulator to insert generated tasks.
+  - Used after fetching tasks from the API to store them locally in Room.
+  - Example: `taskDao.insertTasks(listOf(taskEntity1, taskEntity2))`
+
+---
+
+## 2. updateTask
+- **Operation**: Update a single task in the database.
+- **Entity Affected**: TaskEntity
+- **Accepts**:
+  - `task: TaskEntity` - A single TaskEntity object with updated fields (e.g., updated completionStatus).
+- **Returns**:
+  - Nothing (this is a suspend function, so it returns Unit in Kotlin).
+- **Purpose**:
+  - Updates an existing task in the "tasks" table based on its @PrimaryKey (id). Only the task with the matching ID is updated with the new values.
+- **Example Usage**:
+  - Used when a task's properties are modified (e.g., marking a task as completed by updating completionStatus).
+  - Example: `taskDao.updateTask(taskEntity.copy(completionStatus = 1f))`
+
+---
+
+## 3. getTasks
+- **Operation**: Retrieve all tasks from the database.
+- **Entity Affected**: TaskEntity
+- **Accepts**:
+  - Nothing (no parameters required).
+- **Returns**:
+  - `List<TaskEntity>` - A list of all TaskEntity objects stored in the "tasks" table.
+- **Purpose**:
+  - Fetches all tasks without any filtering. Useful for debugging or when the entire task list is needed.
+- **Example Usage**:
+  - Used in scenarios where you need to process or display all tasks.
+  - Example: `val allTasks = taskDao.getTasks()`
+
+---
+
+## 4. deleteExpired
+- **Operation**: Delete tasks that are older than a specified timestamp.
+- **Entity Affected**: TaskEntity
+- **Accepts**:
+  - `currentTime: Long` - Epoch milliseconds to compare against each TaskEntity's timestamp field.
+- **Returns**:
+  - Nothing (this is a suspend function, so it returns Unit in Kotlin).
+- **Purpose**:
+  - Removes tasks from the "tasks" table where the timestamp field is less than the provided currentTime, effectively cleaning up expired tasks.
+- **Example Usage**:
+  - Used to periodically clean up old tasks that are no longer relevant.
+  - Example: `taskDao.deleteExpired(System.currentTimeMillis() - 24 * 60 * 60 * 1000)` (deletes tasks older than 24 hours)
+
+---
+
+## 5. clearTasks
+- **Operation**: Delete all tasks from the database.
+- **Entity Affected**: TaskEntity
+- **Accepts**:
+  - Nothing (no parameters required).
+- **Returns**:
+  - Nothing (this is a suspend function, so it returns Unit in Kotlin).
+- **Purpose**:
+  - Completely clears the "tasks" table, removing all TaskEntity records.
+- **Example Usage**:
+  - Used by TaskPopulator to clear existing tasks before populating new ones.
+  - Example: `taskDao.clearTasks()`
+
+---
+
+## 6. getTasksFlow
+- **Operation**: Retrieve all tasks as a reactive Flow for live updates.
+- **Entity Affected**: TaskEntity
+- **Accepts**:
+  - Nothing (no parameters required).
+- **Returns**:
+  - `Flow<List<TaskEntity>>` - A Flow that emits a List of TaskEntity objects whenever the "tasks" table changes.
+- **Purpose**:
+  - Provides a reactive stream of all tasks, allowing the UI or other components to update automatically when the task list changes.
+- **Example Usage**:
+  - Used in ViewModels to observe the task list and update the UI reactively.
+  - Example: `taskDao.getTasksFlow().collect { tasks -> updateUI(tasks) }`
+
+---
+
+## 7. getTasksAround
+- **Operation**: Retrieve tasks around a specific task based on startTime (for pagination or context).
+- **Entity Affected**: TaskEntity
+- **Accepts**:
+  - `currentTaskId: String` - The ID of the reference task to center the query around.
+  - `limit: Int` - The total number of tasks to fetch (split evenly before and after the reference task).
+- **Returns**:
+  - `List<TaskEntity>` - A list of TaskEntity objects ordered by startTime, centered around the task with the given ID.
+- **Purpose**:
+  - Fetches a subset of tasks before and after a specific task based on their startTime, useful for displaying a timeline or paginated list.
+- **Example Usage**:
+  - Used in HomeScreen to display a subset of tasks around the currently focused task.
+  - Example: `val nearbyTasks = taskDao.getTasksAround(currentTaskId = "task123", limit = 10)`
+
+---
+
+## 8. getTodayTasks
+- **Operation**: Retrieve tasks for the current day based on a time range.
+- **Entity Affected**: TaskEntity
+- **Accepts**:
+  - `startTime: Long` - Start of the time range in epoch milliseconds (e.g., start of the day).
+  - `endTime: Long` - End of the time range in epoch milliseconds (e.g., start of the next day).
+- **Returns**:
+  - `List<TaskEntity>` - A list of TaskEntity objects whose startTime falls within the specified range.
+- **Purpose**:
+  - Fetches tasks that occur within a given time range, typically used to get tasks for the current day.
+- **Example Usage**:
+  - Used in StatsViewModel to fetch tasks for calculating daily stats.
+  - Example:
+    ```
+    val start = DateFormatter.getStartOfDayMillis()
+    val end = DateFormatter.getStartOfNextDayMillis()
+    val todayTasks = taskDao.getTodayTasks(start, end)
+    ```
+
+---
+
+## 9. getTodayTasksFlow
+- **Operation**: Retrieve tasks for the current day as a reactive Flow for live updates.
+- **Entity Affected**: TaskEntity
+- **Accepts**:
+  - `startTime: Long` - Start of the time range in epoch milliseconds (e.g., start of the day).
+  - `endTime: Long` - End of the time range in epoch milliseconds (e.g., start of the next day).
+- **Returns**:
+  - `Flow<List<TaskEntity>>` - A Flow that emits a List of TaskEntity objects within the time range whenever the "tasks" table changes.
+- **Purpose**:
+  - Provides a reactive stream of tasks for the current day, allowing the UI or other components to update automatically when the task list changes.
+- **Example Usage**:
+  - Used in StatsViewModel to observe tasks for the current day and update stats reactively.
+  - Example:
+    ```
+    val start = DateFormatter.getStartOfDayMillis()
+    val end = DateFormatter.getStartOfNextDayMillis()
+    taskDao.getTodayTasksFlow(start, end).collect { tasks -> updateStats(tasks) }
+    ```
+
+---
+
+## Notes on DefaultTaskEntity
+- The provided TaskDao operations are for TaskEntity. DefaultTaskEntity operations are managed by DefaultTaskDao (not shown in the provided code).
+- Similar operations (e.g., insert, update, get) would exist in DefaultTaskDao for DefaultTaskEntity, with similar input/output patterns.
+- Example for DefaultTaskDao (assumed):
+  - `insertDefaultTasks(tasks: List<DefaultTaskEntity>)` - Similar to insertTasks but for DefaultTaskEntity.
+  - `getDefaultTasks(): List<DefaultTaskEntity>` - Similar to getTasks but for DefaultTaskEntity.
+
+---
+
+## General Notes
+- **TaskEntity Fields**: id (String, PrimaryKey), title (String), category (String), color (String), startTime (Long), endTime (Long), duration (Int), subtasks (List<SubTask>), taskScore (Float), taskId (String), completionStatus (Float), timestamp (Long).
+- **DateFormatter Integration**: Operations like getTodayTasks and getTodayTasksFlow use DateFormatter to set the time range (e.g., getStartOfDayMillis, getStartOfNextDayMillis).
+- **Suspend Functions**: Most operations are suspend functions, meant to be called from a coroutine scope (e.g., lifecycleScope.launch).
+- **Flow Operations**: getTasksFlow and getTodayTasksFlow return Flow, suitable for reactive programming with Kotlin Coroutines.
+
+This covers all nine operations for TaskEntity in TaskDao. Let me know if you need details on DefaultTaskDao operations!
+
+
+val sampleTaskEntity = TaskEntity(
+    id = "task123",
+    title = "Meeting with Team",
+    category = "work",
+    color = "#FF6B6B",
+    startTime = DateFormatter.localDateTimeToMillis(
+        LocalDateTime.of(2025, 5, 2, 20, 40).atZone(ZoneId.of("Asia/Kolkata")).toLocalDateTime()
+    ), // 8:40 PM IST on May 2, 2025
+    endTime = DateFormatter.localDateTimeToMillis(
+        LocalDateTime.of(2025, 5, 2, 21, 10).atZone(ZoneId.of("Asia/Kolkata")).toLocalDateTime()
+    ), // 9:10 PM IST on May 2, 2025
+    duration = 30 * 60, // 30 minutes in seconds
+    subtasks = listOf(
+        SubTask(
+            id = "subtask1",
+            title = "Prepare Agenda",
+            measurementType = "Binary",
+            baseScore = 10,
+            completionStatus = 1f,
+            finalScore = 10f,
+            binary = BinaryMeasurement(completed = true),
+            time = null,
+            quant = null,
+            deepwork = null,
+            subTaskId = "subtask1_id"
+        )
+    ),
+    taskScore = 10f,
+    taskId = "task123_id",
+    completionStatus = 1f,
+    timestamp = System.currentTimeMillis()
+)
+

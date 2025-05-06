@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212"
+    android:padding="24dp">
+
+    <!-- Task Title -->
+    <TextView
+        android:id="@+id/taskTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Progress Bar -->
+    <ProgressBar
+        android:id="@+id/progressCircle"
+        style="@android:style/Widget.ProgressBar.Large"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/taskTitle"
+        android:layout_marginBottom="16dp"
+        android:progressDrawable="@drawable/circular_progress"/>
+
+    <!-- Progress Text -->
+    <TextView
+        android:id="@+id/progressText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textColor="#FFFFFF"
+        android:textSize="32sp"/>
+
+    <!-- Time Container -->
+    <LinearLayout
+        android:id="@+id/timeContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_below="@id/progressCircle"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/startTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#80FFFFFF"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" - "
+            android:textColor="#80FFFFFF"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/endTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#80FFFFFF"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <!-- Task Description -->
+    <TextView
+        android:id="@+id/taskDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_below="@id/timeContainer"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Measurement Container -->
+    <LinearLayout
+        android:id="@+id/measureContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_below="@id/taskDescription"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/measureType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#80FFFFFF"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/scoreInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#80FFFFFF"
+            android:textSize="14sp"
+            android:layout_marginLeft="16dp"/>
+    </LinearLayout>
+
+    <!-- Subtasks -->
+    <TextView
+        android:id="@+id/subTasks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_below="@id/measureContainer"/>
+</RelativeLayout>

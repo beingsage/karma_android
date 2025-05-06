@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/panel_background"
+    android:layout_width="120dp"
+    android:layout_height="120dp"
+    android:background="@drawable/circular_background">
+
+    <ImageButton
+        android:id="@+id/center_button"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="start|center_vertical"
+        android:src="@android:drawable/ic_menu_preferences"
+        android:background="@android:color/transparent"
+        android:scaleType="centerInside" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/action_recycler"
+        android:layout_width="80dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:clipToPadding="false"
+        android:padding="8dp" />
+</FrameLayout>

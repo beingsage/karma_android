@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Skeleton for task dot -->
+        <View
+            android:id="@+id/skeletonDot"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="@drawable/skeleton_circle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Skeleton for task title -->
+        <View
+            android:id="@+id/skeletonTitle"
+            android:layout_width="0dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="80dp"
+            android:background="@drawable/skeleton_rounded_rect"
+            app:layout_constraintStart_toEndOf="@id/skeletonDot"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Skeleton for time -->
+        <View
+            android:id="@+id/skeletonTime"
+            android:layout_width="60dp"
+            android:layout_height="14dp"
+            android:background="@drawable/skeleton_rounded_rect"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Skeleton for progress bar -->
+        <View
+            android:id="@+id/skeletonProgress"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/skeleton_rounded_rect"
+            app:layout_constraintStart_toStartOf="@id/skeletonTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/skeletonTitle" />
+
+        <!-- Skeleton for details -->
+        <View
+            android:layout_width="120dp"
+            android:layout_height="12dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/skeleton_rounded_rect"
+            app:layout_constraintStart_toStartOf="@id/skeletonTitle"
+            app:layout_constraintTop_toBottomOf="@id/skeletonProgress" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

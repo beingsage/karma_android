@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="#F9FAFB">
+
+    <!-- Header -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:padding="8dp"
+        android:elevation="2dp">
+
+        <TextView
+            android:id="@+id/tv_day"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/thursday"
+            android:textSize="12sp"/>
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/_3_00_pm"
+            android:textSize="12sp"/>
+
+        <TextView
+            android:id="@+id/tv_session"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/_4"
+            android:textSize="12sp"/>
+
+        <TextView
+            android:id="@+id/tv_duration"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/_10_min"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+    <!-- Timer -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true">
+
+        <ProgressBar
+            android:id="@+id/progress_circle"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="256dp"
+            android:layout_height="256dp"
+            android:layout_gravity="center"
+            android:progressDrawable="@drawable/circular_progress"
+            android:max="600"
+            android:progress="0"/>
+
+        <TextView
+            android:id="@+id/tv_timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="10:00"
+            android:textSize="48sp"
+            android:textStyle="bold"/>
+    </FrameLayout>
+
+    <!-- Song Selection -->
+    <Spinner
+        android:id="@+id/spinner_songs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Start/Pause Button -->
+    <Button
+        android:id="@+id/btn_toggle_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start"
+        android:backgroundTint="#6366F1"
+        android:textColor="#FFFFFF"
+        android:layout_below="@id/spinner_songs"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Interruption Counter -->
+    <LinearLayout
+        android:id="@+id/interruption_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:padding="8dp"
+        android:elevation="2dp">
+
+        <TextView
+            android:id="@+id/tv_interruptions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="16sp"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btn_log_interruption"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="+"
+            android:textSize="20sp"/>
+    </LinearLayout>
+
+    <!-- Efficacy Rating (Hidden initially) -->
+    <LinearLayout
+        android:id="@+id/efficacy_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="How effective was your session?"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"/>
+
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/btn_rate_1"
+                style="?android:attr/buttonBarButtonStyle"
+                android:text="@string/_1"
+                android:layout_width="48dp"
+                android:layout_height="48dp" />
+
+            <Button
+                android:id="@+id/btn_rate_2"
+                style="?android:attr/buttonBarButtonStyle"
+                android:text="2"
+                android:layout_width="48dp"
+                android:layout_height="48dp" />
+
+            <Button
+                android:id="@+id/btn_rate_3"
+                style="?android:attr/buttonBarButtonStyle"
+                android:text="3"
+                android:layout_width="48dp"
+                android:layout_height="48dp" />
+
+            <Button
+                android:id="@+id/btn_rate_4"
+                style="?android:attr/buttonBarButtonStyle"
+                android:text="4"
+                android:layout_width="48dp"
+                android:layout_height="48dp" />
+
+            <Button
+                android:id="@+id/btn_rate_5"
+                style="?android:attr/buttonBarButtonStyle"
+                android:text="@string/_5" android:layout_width="48dp" android:layout_height="48dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

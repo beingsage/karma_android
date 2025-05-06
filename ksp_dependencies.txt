@@ -1,0 +1,14 @@
+
+> Task :app:dependencies
+
+------------------------------------------------------------
+Project ':app'
+------------------------------------------------------------
+
+kspDebug - KSP dependencies for the 'debug (Android)' source set. (n)
+No dependencies
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+BUILD SUCCESSFUL in 5s
+1 actionable task: 1 executed

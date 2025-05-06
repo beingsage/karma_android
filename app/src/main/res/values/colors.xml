@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primaryColor">#6200EE</color>
+    <color name="accentColor">#03DAC5</color>
+    <color name="backgroundColor">#F5F5F5</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="gray">#FF808080</color>
+    <color name="ic_launcher_background">#FFFFFF</color>
+
+    <color name="primary_variant">#3700B3</color>
+    <color name="secondary">#03DAC6</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="on_background">#000000</color>
+
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+
+    <!-- Category Colors -->
+    <color name="category_routine">#FF6B6B</color>
+    <color name="category_study">#4ECDC4</color>
+    <color name="category_misc">#45B7D1</color>
+    <color name="category_work">#96CEB4</color>
+
+    <!-- Chip Background Colors -->
+    <color name="chip_routine_background">#FFFF6B6B</color>
+    <color name="chip_study_background">#FF4ECDC4</color>
+    <color name="chip_misc_background">#FF45B7D1</color>
+    <color name="chip_work_background">#FF96CEB4</color>
+
+<!--    stats resources -->
+
+    <!-- App Theme Colors -->
+    <color name="background_start">#FF1A1A1A</color>
+    <color name="background_end">#FF2C2C2C</color>
+    <color name="card_background">#FFFFFFFF</color>
+    <color name="card_background_dark">#FF2C2C2C</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_muted">#9E9E9E</color>
+    <color name="text_primary_dark">#FFFFFFFF</color>
+    <color name="text_secondary_dark">#FFBDBDBD</color>
+
+    <!-- Trend Colors -->
+    <color name="trend_positive">#FF4CAF50</color>
+    <color name="trend_negative">#FFF44336</color>
+
+    <!-- Chart Colors -->
+    <color name="grid_line">#FFEEEEEE</color>
+    <color name="grid_line_dark">#FF424242</color>
+
+    <!-- Medal Colors -->
+    <color name="medal_gold">#FFFFEB3B</color>
+
+    <!-- Indigo Colors -->
+    <color name="indigo_50">#FFE8EAF6</color>
+    <color name="indigo_100">#FFC5CAE9</color>
+    <color name="indigo_200">#FF9FA8DA</color>
+    <color name="indigo_300">#FF7986CB</color>
+    <color name="indigo_400">#FF5C6BC0</color>
+    <color name="indigo_500">#FF3F51B5</color>
+    <color name="indigo_600">#FF3949AB</color>
+    <color name="indigo_700">#FF303F9F</color>
+    <color name="indigo_800">#FF283593</color>
+    <color name="indigo_900">#FF1A237E</color>
+
+    <!-- Blue Colors -->
+    <color name="blue_500">#FF2196F3</color>
+
+    <!-- Green Colors -->
+    <color name="green_500">#FF4CAF50</color>
+
+    <!-- Amber Colors -->
+    <color name="amber_500">#FFFFC107</color>
+
+    <!-- Pink Colors -->
+    <color name="pink_500">#FFE91E63</color>
+
+    <!-- Alpha Colors for Gradients -->
+    <color name="indigo_500_alpha_80">#CC3F51B5</color>
+    <color name="indigo_500_alpha_10">#1A3F51B5</color>
+    <color name="purple_500_alpha_80">#CC6200EE</color>
+    <color name="purple_500_alpha_10">#1A6200EE</color>
+    <color name="green_500_alpha_80">#CC4CAF50</color>
+    <color name="green_500_alpha_10">#1A4CAF50</color>
+
+
+
+    <!-- Base colors -->
+    <color name="primary">#6200EE</color>
+    <color name="secondary_variant">#018786</color>
+
+    <!-- Background colors -->
+    <color name="background">#F8F9FA</color>
+    <color name="surface">#FFFFFF</color>
+
+    <!-- Status colors -->
+    <color name="status_completed">#388E3C</color>
+    <color name="status_in_progress">#1976D2</color>
+    <color name="status_missed">#F44336</color>
+    <color name="status_upcoming">#9E9E9E</color>
+
+    <!-- Progress colors -->
+    <color name="progress_indicator">#6200EE</color>
+    <color name="progress_track">#E0E0E0</color>
+
+    <!-- Task category colors -->
+    <color name="category_personal">#00897B</color>
+    <color name="category_health">#D81B60</color>
+    <color name="category_learning">#FB8C00</color>
+    <color name="category_other">#546E7A</color>
+
+    <!-- Shimmer colors -->
+    <color name="shimmer_base">#EEEEEE</color>
+    <color name="shimmer_highlight">#FFFFFF</color>
+
+    <!-- Ripple color -->
+    <color name="ripple_color">#33000000</color>
+
+    <!-- System colors -->
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
+    <!--recheck-->
+    <color name="bottom_nav_item_color">#360197</color>
+</resources>
