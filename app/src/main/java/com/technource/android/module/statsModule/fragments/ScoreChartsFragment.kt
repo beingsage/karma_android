@@ -17,9 +17,9 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.technource.android.R
-import com.technource.android.module.statsModule.models.RewardPoint
-import com.technource.android.module.statsModule.models.ScorePoint
-import com.technource.android.module.statsModule.models.StatsViewModel
+import com.technource.android.module.statsModule.RewardPoint
+import com.technource.android.module.statsModule.ScorePoint
+import com.technource.android.module.statsModule.StatsViewModel
 
 class ScoreChartsFragment : Fragment() {
 

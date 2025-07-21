@@ -126,7 +126,7 @@ data class QuantMeasurement(
  * - Uses DateFormatter: Not applicable.
  */
 data class DeepWorkMeasurement(
-    val template: String,
+    var template: String,
     var deepworkScore: Int?
 ) : Serializable
 

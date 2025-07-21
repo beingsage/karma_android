@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Flow Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.5/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .cockpit-bg { background: linear-gradient(180deg, #1a202c, #2d3748); color: white; min-height: 100vh; font-family: 'Courier New', Courier, monospace; }
+        .log-entry { transition: background-color 0.3s; cursor: pointer; }
+        .log-entry:hover { background-color: rgba(255, 255, 255, 0.1); }
+        .gauge { width: 100px; height: 100px; border-radius: 50%; border: 2px solid #4a5568; position: relative; overflow: hidden; }
+        .gauge-fill { position: absolute; bottom: 0; width: 100%; background: linear-gradient(to top, #48bb78, #38a169); transition: height 0.5s; }
+        .blink-error { animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.5; } }
+        .node-text { font-size: 12px; fill: white; }
+        .stamp { font-size: 10px; margin-top: 2px; }
+        .block { stroke: #4a5568; stroke-width: 2; rx: 10; ry: 10; }
+        .loop-indicator { stroke: #f59e0b; stroke-dasharray: 5; }
+    </style>
+</head>
+<body class="cockpit-bg">
+<div id="root"></div>
+<script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const TaskFlowDashboard = () => {
+        const [logs, setLogs] = useState([]);
+        const [filterComponent, setFilterComponent] = useState("All");
+        const [filterStatus, setFilterStatus] = useState("All");
+        const [systemHealth, setSystemHealth] = useState(100);
+        const [activeLinks, setActiveLinks] = useState([]);
+
+        window.logEvent = (component, message, status, timestamp, metadata = {}) => {
+            const newLog = { id: Date.now(), component, message, status, timestamp, metadata };
+            setLogs(prev => [...prev, newLog]);
+            updateDiagram(newLog);
+        };
+
+        const flowData = {
+            nodes: [
+                { id: "onCreate", label: "onCreate", group: "function", x: 100, y: 50 },
+                { id: "startForeground", label: "startForeground", group: "function", x: 100, y: 100 },
+                { id: "TaskIterator", label: "TaskIterator", group: "component", x: 100, y: 150 },
+                { id: "DailySync", label: "DailySync", group: "loop", x: 100, y: 200 },
+                { id: "pollForNextTimetable", label: "pollForNextTimetable", group: "loop", x: 100, y: 250 },
+                { id: "WatchdogService", label: "WatchdogService", group: "service", x: 300, y: 150 },
+                { id: "HeartbeatReceiver", label: "HeartbeatReceiver", group: "component", x: 300, y: 200 },
+                { id: "RestartServiceJob", label: "RestartServiceJob", group: "component", x: 300, y: 250 },
+                { id: "onTaskRemoved", label: "onTaskRemoved", group: "function", x: 100, y: 300 }
+            ],
+            links: [
+                { source: "onCreate", target: "startForeground", status: "INFO", condition: "startForeground" },
+                { source: "startForeground", target: "TaskIterator", status: "INFO", condition: "Initialize TaskIterator" },
+                { source: "startForeground", target: "DailySync", status: "INFO", condition: "startDailySync" },
+                { source: "DailySync", target: "pollForNextTimetable", status: "INFO", condition: "pollForNextTimetable" },
+                { source: "pollForNextTimetable", target: "TaskIterator", status: "SUCCESS", condition: "normalize UPCOMING statuses" },
+                { source: "pollForNextTimetable", target: "TaskIterator", status: "ERROR", condition: "≥5AM" },
+                { source: "WatchdogService", target: "onCreate", status: "INFO", condition: "restart ETMS" },
+                { source: "HeartbeatReceiver", target: "onCreate", status: "INFO", condition: "onHeartbeat" },
+                { source: "RestartServiceJob", target: "onCreate", status: "INFO", condition: "executeRestart" },
+                { source: "onTaskRemoved", target: "onCreate", status: "INFO", condition: "setExact AlarmManager" }
+            ]
+        };
+
+        useEffect(() => {
+            const svg = d3.select("#flow-diagram")
+                .attr("width", 500)
+                .attr("height", 400);
+
+            const link = svg.append("g")
+                .selectAll("line")
+                .data(flowData.links)
+                .enter()
+                .append("line")
+                .attr("stroke", "#3b82f6")
+                .attr("stroke-width", 2)
+                .attr("stroke-opacity", 0)
+                .attr("marker-end", "url(#arrow)");
+
+            svg.append("defs").append("marker")
+                .attr("id", "arrow")
+                .attr("viewBox", "0 -5 10 10")
+                .attr("refX", 10)
+                .attr("refY", 0)
+                .attr("markerWidth", 6)
+                .attr("markerHeight", 6)
+                .attr("orient", "auto")
+                .append("path")
+                .attr("d", "M0,-5L10,0L0,5")
+                .attr("fill", "#3b82f6");
+
+            const node = svg.append("g")
+                .selectAll("g")
+                .data(flowData.nodes)
+                .enter()
+                .append("g")
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+
+            node.append("rect")
+                .attr("width", 120)
+                .attr("height", 40)
+                .attr("class", "block")
+                .attr("fill", d => {
+                    switch (d.group) {
+                        case "service": return "#8b5cf6";
+                        case "component": return "#3b82f6";
+                        case "function": return "#10b981";
+                        case "loop": return "#f59e0b";
+                        default: return "#6b7280";
+                    }
+                });
+
+            node.append("text")
+                .attr("class", "node-text")
+                .text(d => d.label)
+                .attr("x", 60)
+                .attr("y", 25)
+                .attr("text-anchor", "middle");
+
+            node.filter(d => d.id === "TaskIterator")
+                .append("text").attr("class", "stamp").attr("x", 60).attr("y", 50).text("TTS: ?").attr("text-anchor", "middle").attr("fill", "#6b7280")
+                .append("text").attr("class", "stamp").attr("x", 60).attr("y", 62).text("Logger: ?").attr("text-anchor", "middle").attr("fill", "#6b7280")
+                .append("text").attr("class", "stamp").attr("x", 60).attr("y", 74).text("Status: ?").attr("text-anchor", "middle").attr("fill", "#6b7280")
+                .append("text").attr("class", "stamp").attr("x", 60).attr("y", 86).text("Lock: ?").attr("text-anchor", "middle").attr("fill", "#6b7280");
+
+            link
+                .attr("x1", d => flowData.nodes.find(n => n.id === d.source).x + 120)
+                .attr("y1", d => flowData.nodes.find(n => n.id === d.source).y + 20)
+                .attr("x2", d => flowData.nodes.find(n => n.id === d.target).x)
+                .attr("y2", d => flowData.nodes.find(n => n.id === d.target).y + 20);
+        }, []);
+
+        const updateDiagram = (log) => {
+            const svg = d3.select("#flow-diagram");
+            const relevantLinks = flowData.links.filter(l =>
+                (log.component === "ETMS" || log.component === l.source || log.component === l.target) &&
+                log.message.includes(l.condition)
+            );
+
+            svg.selectAll("line")
+                .attr("stroke", d => {
+                    const isActive = relevantLinks.includes(d);
+                    return isActive ? (d.status === "ERROR" ? "#ef4444" : "#10b981") : "#3b82f6";
+                })
+                .attr("stroke-opacity", d => relevantLinks.includes(d) ? 1 : 0);
+
+            if (log.metadata.taskId && log.component === "TaskIterator") {
+                svg.selectAll("g")
+                    .filter(d => d.id === "TaskIterator")
+                    .selectAll("text.stamp")
+                    .each(function(d, i) {
+                        if (i === 0) d3.select(this).text(`TTS: ${log.metadata.ttsTriggered ? '✓' : '✗'}`).attr("fill", log.metadata.ttsTriggered ? "#10b981" : "#ef4444");
+                        if (i === 1) d3.select(this).text(`Logger: ${log.metadata.loggerTriggered ? '✓' : '✗'}`).attr("fill", log.metadata.loggerTriggered ? "#10b981" : "#ef4444");
+                        if (i === 2) d3.select(this).text(`Status: ${log.metadata.statusReported || '?'}`).attr("fill", log.metadata.statusReported ? "#10b981" : "#ef4444");
+                        if (i === 3) d3.select(this).text(`Lock: ${log.metadata.lockScreenUpdated ? '✓' : '✗'}`).attr("fill", log.metadata.lockScreenUpdated ? "#10b981" : "#ef4444");
+                    });
+            }
+
+            if (log.status === "ERROR") setSystemHealth(prev => Math.max(0, prev - 5));
+            else if (log.status === "SUCCESS") setSystemHealth(prev => Math.min(100, prev + 5));
+        };
+
+        const filteredLogs = logs.filter(log =>
+            (filterComponent === "All" || log.component === filterComponent) &&
+            (filterStatus === "All" || log.status === filterStatus)
+        );
+
+        return (
+            <div className="p-4">
+                <h1 className="text-2xl font-bold mb-4">ETMS Flow Dashboard</h1>
+                <div className="grid grid-cols-3 gap-4">
+                    <div className="col-span-2">
+                        <h2 className="text-xl mb-2">Block and Flow Diagram</h2>
+                        <svg id="flow-diagram"></svg>
+                    </div>
+                    <div>
+                        <h2 className="text-xl mb-2">System Health</h2>
+                        <div className="gauge"><div className="gauge-fill" style={{ height: `${systemHealth}%` }}></div></div>
+                        <p className="mt-2">Health: {systemHealth}%</p>
+                        <h2 className="text-xl mt-4 mb-2">Filters</h2>
+                        <select className="w-full p-2 bg-gray-800 rounded mb-2" value={filterComponent} onChange={e => setFilterComponent(e.target.value)}>
+                            <option>All</option><option>ETMS</option><option>TaskIterator</option><option>WatchdogService</option><option>HeartbeatReceiver</option><option>RestartServiceJob</option>
+                        </select>
+                        <select className="w-full p-2 bg-gray-800 rounded" value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+                            <option>All</option><option>INFO</option><option>SUCCESS</option><option>ERROR</option>
+                        </select>
+                    </div>
+                </div>
+                <div className="mt-4">
+                    <h2 className="text-xl mb-2">Logs</h2>
+                    <div className="bg-gray-900 p-4 rounded max-h-96 overflow-y-auto">
+                        {filteredLogs.map(log => (
+                            <div key={log.id} className={`log-entry p-2 mb-2 rounded ${log.status === "ERROR" ? "bg-red-900 blink-error" : log.status === "SUCCESS" ? "bg-green-900" : "bg-blue-900"}`} onClick={() => updateDiagram(log)}>
+                                <p><strong>{log.timestamp}</strong> [{log.component}] {log.message}</p>
+                                {Object.keys(log.metadata).length > 0 && <p className="text-sm">{JSON.stringify(log.metadata)}</p>}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    ReactDOM.render(<TaskFlowDashboard />, document.getElementById("root"));
+</script>
+</body>
+</html>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-<!--    package="com.technource.KARMA">-->
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -26,13 +25,24 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
-
-
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
         android:name="com.technource.android.TaskApplication"
@@ -43,8 +53,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TaskManager"
         tools:targetApi="31"
-        android:largeHeap="true"
-        android:usesCleartextTraffic="true">
+        android:largeHeap="true">
+        <meta-data
+            android:name="android.app.shortcuts"
+            android:resource="@xml/shortcuts"/>
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <activity
             android:name="com.technource.android.module.homeModule.HomeScreen"
@@ -53,39 +68,34 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
         </activity>
 
         <activity
-            android:name="com.technource.android.ETMS.micro.TaskLoggerActivity"
+            android:name="com.technource.android.eTMS.micro.TaskLoggerActivity"
             android:exported="false"
             android:launchMode="singleTask"
             android:showWhenLocked="true"
             android:turnScreenOn="true" />
 
-        <activity android:name="com.technource.android.PermissionActivity" />
-        <activity android:name="com.technource.android.module.miscModule.MiscellaneousScreen" />
-        <activity android:name="com.technource.android.module.settingsModule.SettingsScreen" />
-        <activity android:name="com.technource.android.module.statsModule.StatsScreen" />
+        <activity android:name="com.technource.android.utils.PermissionActivity" />
+        <activity android:name="com.technource.android.module.miscModule.MiscellaneousScreen"
+            android:theme="@style/AppTheme"/>
+        <activity android:name="com.technource.android.module.settingsModule.SettingsScreen"
+            android:theme="@style/AppTheme" />
+        <activity android:name="com.technource.android.module.statsModule.StatsScreen"
+            android:theme="@style/AppTheme"/>
         <activity android:name="com.technource.android.system_status.SystemStatusActivity" />
         <activity android:name="com.technource.android.module.settingsModule.DefaultTimetableComparisonActivity" />
+        <activity android:name="com.technource.android.module.miscModule.miscscreen.Gym.GymActivity"
+            android:theme="@style/Theme.GymTracker"/>
+        <activity android:name="com.technource.android.module.miscModule.miscscreen.Finance.FinanceActivity"
+            android:theme="@style/Theme.FinPilot"/>
 
 
 
-
-        <service android:name=".module.settingsModule.TaskIteratorService"
-            android:foregroundServiceType="dataSync" />
-
-        <service android:name="com.technource.android.FloatingService"
+        <service android:name="com.technource.android.utils.FloatingService"
             android:exported="false"
             android:foregroundServiceType="microphone|camera" />
-
-
-        <service android:name="com.technource.android.ETMS.micro.TaskNotificationService"
-            android:enabled="true" android:exported="false"
-            android:foregroundServiceType="mediaPlayback"/>
 
         <service android:name="com.technource.android.system_status.SystemStatusService"
             android:foregroundServiceType="systemExempted"/>
@@ -97,7 +107,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.technource.android.ETMS.micro.TaskWidgetProvider"
+        <receiver android:name="com.technource.android.eTMS.micro.TaskWidgetProvider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -127,70 +137,75 @@
 
 
         <!-- Register BroadcastReceiver -->
-        <receiver android:name=".ETMS.micro.DynamicWallpaperTaskIterator"
+        <receiver android:name=".eTMS.micro.DynamicWallpaperTaskIterator"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.example.dynamictaskwallpaper.APPLY_WALLPAPER" />
             </intent-filter>
         </receiver>
 
-        <!-- Optional: Service for background updates -->
-        <service android:name=".ETMS.micro.WallpaperService" />
+        <service
+    android:name=".eTMS.macro.EternalTimeTableUnitService" android:permission="android.permission.BIND_JOB_SERVICE"
+    android:enabled="true"
+    android:exported="false"
+    android:foregroundServiceType="dataSync" />
+
+       <receiver
+    android:name=".eTMS.macro.AutoStartReceiver"
+    android:enabled="true"
+    android:exported="true" android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+    <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+        <action android:name="android.intent.action.USER_PRESENT" />
+        <action android:name="android.intent.action.POWER_CONNECTED" />
+    </intent-filter>
+       </receiver>
+
+        <!-- Add HeartbeatReceiver -->
+        <receiver
+            android:name="com.technource.android.eTMS.macro.HeartbeatReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.technource.android.HEARTBEAT_CHECK" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Add WatchdogService -->
+        <service
+            android:name="com.technource.android.eTMS.macro.WatchdogService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="systemExempted"/>
+
+        <!-- Existing RestartServiceJob service (ensure it exists) -->
+        <service
+            android:name="com.technource.android.eTMS.macro.RestartServiceJob"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:exported="false" />
 
 
+            <activity android:name=".eTMS.DashboardActivity"/>
+
+<!--        <receiver-->
+<!--    android:name="com.technource.android.actions.TaskBroadcastReceiver"-->
+<!--    android:exported="true">-->
+<!--    <intent-filter>-->
+<!--        <action android:name="android.intent.action.VIEW" />-->
+<!--        <action android:name="actions.intent.GET_TASK" />-->
+<!--        <category android:name="android.intent.category.DEFAULT" />-->
+<!--    </intent-filter>-->
+<!--</receiver>-->
+
+
+        <activity
+            android:name=".utils.CameraActivity"
+            android:exported="false" />
+
+        <activity
+            android:name="com.google.android.gms.auth.api.signin.internal.SignInHubActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
     </application>
 </manifest>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!--image, logo, slashscreen
-activity -> home screen, stats screen, misc screen, profile screen, settings screen, log screen, homescreen wallpaper, lockscreen wallpaper
-service  ->
-reciecer ->
-providers ->
-will be configured later on for now do everything on activty
--->
-
-
-    <!--    <uses-feature android:name="android.hardware.camera" android:required="false" />-->
-
-    <!--    inter-app communication-->
-    <!--    <permission-->
-    <!--        android:name="com.example.myapp.permission.ACCESS_DATA"-->
-    <!--        android:protectionLevel="signature" />-->

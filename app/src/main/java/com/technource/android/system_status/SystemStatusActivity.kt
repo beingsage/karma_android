@@ -3,6 +3,8 @@ package com.technource.android.system_status
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.WallpaperManager
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -21,12 +23,14 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.webkit.WebView
 import android.widget.Button
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -37,13 +41,15 @@ import java.util.*
 
 class SystemStatusActivity : AppCompatActivity() {
     private lateinit var database: ServiceLogDatabase
+//    private lateinit var webView: WebView
 
-    // Helper function to create table cells
+    // Helper function to create cell with selectable text
     private fun createCell(text: String, isHeader: Boolean): TextView {
         return TextView(this).apply {
             this.text = text
             setTextColor(if (isHeader) Color.WHITE else Color.LTGRAY)
             setPadding(8, 4, 8, 4)
+            setTextIsSelectable(true) // Make text selectable
 
             layoutParams = TableRow.LayoutParams(
                 if (isHeader) 120.dpToPx() else TableRow.LayoutParams.WRAP_CONTENT,
@@ -56,8 +62,8 @@ class SystemStatusActivity : AppCompatActivity() {
             } else {
                 isSingleLine = false
                 maxLines = Integer.MAX_VALUE
-                setHorizontallyScrolling(true)   // enables horizontal scrolling inside the cell
-                ellipsize = null                 // disable "..." trimming
+                setHorizontallyScrolling(true)
+                ellipsize = null
                 scrollBarStyle = View.SCROLLBARS_INSIDE_INSET
                 isVerticalScrollBarEnabled = false
                 isHorizontalScrollBarEnabled = true
@@ -73,11 +79,31 @@ class SystemStatusActivity : AppCompatActivity() {
         return SimpleDateFormat("MM/dd HH:mm:ss", Locale.getDefault()).format(Date(timestamp))
     }
 
+    // Helper function to copy text to clipboard
+    private fun copyToClipboard(text: String) {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("Service Logs", text)
+        clipboard.setPrimaryClip(clip)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_system_status)
         database = ServiceLogDatabase.getDatabase(this)
-        SystemStatus.initialize(this)
+        // SystemStatus.initialize(this)
+
+         // Initialize WebView for flowchart
+//        webView = WebView(this).apply {
+//            layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 600) // Adjust height as needed
+//            setBackgroundColor(Color.WHITE)
+//        }
+//        SystemStatus.initialize(this, webView)
+//
+//         // Add WebView to layout
+//        val unitContainer = findViewById<LinearLayout>(R.id.unitContainer)
+//        unitContainer.addView(webView, 0)
+
+        
         requestPermissions()
         checkDeviceServices()
         setupUnitTables()
@@ -121,7 +147,7 @@ class SystemStatusActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun setupUnitTables() {
         val unitContainer = findViewById<LinearLayout>(R.id.unitContainer)
-        val services = listOf(
+        val services = listOf("EternalTimeTableUnitService","HomeScreen", "TaskViewModel", "TimelineView", "TaskAdapter",
             "TTS", "TaskIteratorSimulator", "Vibration", "Wallpaper", "Alarm", "Widget",
             "TaskSyncWorker", "StatsPage", "TaskCompletionChart", "SettingsActivity",
             "TimeTableManager", "TaskLoggerActivity", "TaskIterator", "StatsViewModel",
@@ -167,7 +193,26 @@ class SystemStatusActivity : AppCompatActivity() {
                         }
                     }
                 }
-                unitLayout.addView(deleteButton)
+
+                // Add copy button
+                val copyButton = Button(this@SystemStatusActivity).apply {
+                    text = "Copy All Logs"
+                    setBackgroundColor(Color.BLUE)
+                    setTextColor(Color.WHITE)
+                    layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                        bottomMargin = 8
+                        marginStart = 8
+                    }
+                }
+
+                // Create horizontal layout for buttons and add both buttons
+                val buttonLayout = LinearLayout(this@SystemStatusActivity).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+                }
+                buttonLayout.addView(deleteButton)
+                buttonLayout.addView(copyButton)
+                unitLayout.addView(buttonLayout)
 
                 val scrollView = HorizontalScrollView(this@SystemStatusActivity).apply {
                     layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
@@ -206,18 +251,44 @@ class SystemStatusActivity : AppCompatActivity() {
                         table.removeViews(1, table.childCount - 1)
                     }
 
-                    logs.forEach { log ->
-                        val row = TableRow(this@SystemStatusActivity).apply {
-                            layoutParams = TableLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
-                                weight = 1f
+                    // Update copy button click listener with current logs
+                    copyButton.setOnClickListener {
+                        val logText = buildString {
+                            logs.forEach { log ->
+                                append("${formatTime(log.timestamp)}: ${log.log}\n")
                             }
-                            addView(createCell(formatTime(log.timestamp), false))
-                            addView(createCell(log.log, false).apply {
-                                measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-                                Log.d("SystemStatus", "Log width: ${measuredWidth}, Text: ${log.log}")
-                            })
                         }
-                        table.addView(row)
+                        copyToClipboard(logText)
+                        // Show a toast to confirm copy
+                        Toast.makeText(this@SystemStatusActivity,
+                            "Logs copied to clipboard", 
+                            Toast.LENGTH_SHORT).show()
+                    }
+
+//                    logs.forEach { log ->
+//                        val row = TableRow(this@SystemStatusActivity).apply {
+//                            layoutParams = TableLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+//                                weight = 1f
+//                            }
+//                            addView(createCell(formatTime(log.timestamp), false))
+//                            // Remove the unnecessary measure calls
+//                            addView(createCell(log.log, false))
+//                        }
+//                        table.addView(row)
+//                    }
+
+                      logs.forEach { log ->
+                         val row = TableRow(this@SystemStatusActivity).apply {
+                             layoutParams = TableLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT).apply {
+                                 weight = 1f
+                             }
+                             addView(createCell(formatTime(log.timestamp), false))
+                             addView(createCell(log.log, false).apply {
+                                 measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+                                 Log.d("SystemStatus", "Log width: ${measuredWidth}, Text: ${log.log}")
+                             })
+                         }
+                         table.addView(row)
                     }
                 }
                 unitContainer.addView(unitLayout)

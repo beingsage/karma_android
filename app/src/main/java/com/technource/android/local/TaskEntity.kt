@@ -2,7 +2,11 @@ package com.technource.android.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.technource.android.system_status.SystemStatus
 import com.technource.android.utils.DateFormatter
+import com.technource.android.utils.DateFormatter.IST_ZONE
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 /**
  * Room Entity representing a task in the database.
@@ -17,9 +21,9 @@ data class TaskEntity(
     val title: String,
     val category: String,
     val color: String,
-    val startTime: Long, // Epoch milliseconds (changed from String)
-    val endTime: Long,   // Epoch milliseconds (changed from String)
-    val duration: Int,   // Duration in seconds
+    val startTime: String, // Store directly in IST format (e.g., "5:30 AM, May 24, 2025")
+    val endTime: String,   // Store directly in IST format
+    val duration: Int,
     val subtasks: List<SubTask>?,
     val taskScore: Float,
     val taskId: String,
@@ -43,14 +47,15 @@ fun List<TaskEntity>.toTasks(): List<Task> {
             title = it.title,
             category = it.category,
             color = it.color,
-            startTime = DateFormatter.formatIsoDateTime(DateFormatter.millisToLocalDateTime(it.startTime)),
-            endTime = DateFormatter.formatIsoDateTime(DateFormatter.millisToLocalDateTime(it.endTime)),
+            // Convert IST format dates to ISO format for Task objects
+            startTime = DateFormatter.formatISTtoISO(it.startTime), // Convert "5:40 am, Jun 13, 2025" to ISO
+            endTime = DateFormatter.formatISTtoISO(it.endTime),     // Convert to ISO
             duration = it.duration,
             subtasks = it.subtasks,
             taskScore = it.taskScore,
             taskId = it.taskId,
             completionStatus = it.completionStatus,
-            status = it.status?.let { status -> TaskStatus.valueOf(status) }
+            status = it.status?.let { status -> TaskStatus.valueOf(status.uppercase()) }
         )
     }
 }
@@ -70,14 +75,23 @@ fun Task.toTaskEntity(timestamp: Long = System.currentTimeMillis()): TaskEntity 
         title = title,
         category = category,
         color = color,
-        startTime = DateFormatter.localDateTimeToMillis(DateFormatter.parseIsoDateTime(startTime)),
-        endTime = DateFormatter.localDateTimeToMillis(DateFormatter.parseIsoDateTime(endTime)),
+        startTime = DateFormatter.formatToIST(startTime), // Convert to IST format
+        endTime = DateFormatter.formatToIST(endTime),     // Convert to IST format
         duration = duration,
         subtasks = subtasks,
         taskScore = taskScore,
         taskId = taskId ?: "",
         completionStatus = completionStatus,
         timestamp = timestamp,
-        status = status?.name // Store enum as String
+        status = status?.name
     )
+}
+
+/**
+ * Parses an ISO 8601 string to a LocalDateTime object in the IST timezone.
+ * @param isoString The ISO 8601 string to parse.
+ * @return The corresponding LocalDateTime object in the IST timezone.
+ */
+fun parseIsoDateTime(isoString: String): LocalDateTime {
+    return ZonedDateTime.parse(isoString).withZoneSameInstant(IST_ZONE).toLocalDateTime()
 }

@@ -144,67 +144,67 @@
             </LinearLayout>
 
             <!-- Navigation -->
-            <LinearLayout
-                android:id="@+id/navigation_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginBottom="8dp">
+<!--            <LinearLayout-->
+<!--                android:id="@+id/navigation_container"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="horizontal"-->
+<!--                android:gravity="center"-->
+<!--                android:layout_marginBottom="8dp">-->
 
-                <ImageButton
-                    android:id="@+id/btn_previous"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/nav_button_background"
-                    android:src="@drawable/ic_widget_previous"
-                    android:scaleType="centerInside"
-                    android:layout_marginEnd="8dp" />
+<!--                <ImageButton-->
+<!--                    android:id="@+id/btn_previous"-->
+<!--                    android:layout_width="32dp"-->
+<!--                    android:layout_height="32dp"-->
+<!--                    android:background="@drawable/nav_button_background"-->
+<!--                    android:src="@drawable/ic_widget_previous"-->
+<!--                    android:scaleType="centerInside"-->
+<!--                    android:layout_marginEnd="8dp" />-->
 
-                <View
-                    android:id="@+id/dot_0"
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/dot_widget_inactive" />
+<!--                <View-->
+<!--                    android:id="@+id/dot_0"-->
+<!--                    android:layout_width="8dp"-->
+<!--                    android:layout_height="8dp"-->
+<!--                    android:layout_margin="4dp"-->
+<!--                    android:background="@drawable/dot_widget_inactive" />-->
 
-                <View
-                    android:id="@+id/dot_1"
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/dot_widget_inactive" />
+<!--                <View-->
+<!--                    android:id="@+id/dot_1"-->
+<!--                    android:layout_width="8dp"-->
+<!--                    android:layout_height="8dp"-->
+<!--                    android:layout_margin="4dp"-->
+<!--                    android:background="@drawable/dot_widget_inactive" />-->
 
-                <View
-                    android:id="@+id/dot_2"
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/dot_widget_inactive" />
+<!--                <View-->
+<!--                    android:id="@+id/dot_2"-->
+<!--                    android:layout_width="8dp"-->
+<!--                    android:layout_height="8dp"-->
+<!--                    android:layout_margin="4dp"-->
+<!--                    android:background="@drawable/dot_widget_inactive" />-->
 
-                <View
-                    android:id="@+id/dot_3"
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/dot_widget_inactive" />
+<!--                <View-->
+<!--                    android:id="@+id/dot_3"-->
+<!--                    android:layout_width="8dp"-->
+<!--                    android:layout_height="8dp"-->
+<!--                    android:layout_margin="4dp"-->
+<!--                    android:background="@drawable/dot_widget_inactive" />-->
 
-                <View
-                    android:id="@+id/dot_4"
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/dot_widget_inactive" />
+<!--                <View-->
+<!--                    android:id="@+id/dot_4"-->
+<!--                    android:layout_width="8dp"-->
+<!--                    android:layout_height="8dp"-->
+<!--                    android:layout_margin="4dp"-->
+<!--                    android:background="@drawable/dot_widget_inactive" />-->
 
-                <ImageButton
-                    android:id="@+id/btn_next"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/nav_button_background"
-                    android:src="@drawable/ic_widget_next"
-                    android:scaleType="centerInside"
-                    android:layout_marginStart="8dp" />
-            </LinearLayout>
+<!--                <ImageButton-->
+<!--                    android:id="@+id/btn_next"-->
+<!--                    android:layout_width="32dp"-->
+<!--                    android:layout_height="32dp"-->
+<!--                    android:background="@drawable/nav_button_background"-->
+<!--                    android:src="@drawable/ic_widget_next"-->
+<!--                    android:scaleType="centerInside"-->
+<!--                    android:layout_marginStart="8dp" />-->
+<!--            </LinearLayout>-->
 
             
 

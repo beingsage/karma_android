@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/headerComponent"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:background="@drawable/header_gradient_background"
+    android:elevation="4dp"
+    android:paddingHorizontal="16dp">
+
+    <!-- Screen Title -->
+    <TextView
+        android:id="@+id/headerTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/poppins_semibold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/systemIndicator"/>
+
+    <!-- System Status Indicator -->
+    <View
+        android:id="@+id/systemIndicator"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:background="@drawable/circle_indicator"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toStartOf="@id/btnLogs"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <!-- Logs Button -->
+    <ImageButton
+        android:id="@+id/btnLogs"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_logs"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:layout_marginEnd="16dp"
+        app:tint="@color/white"
+        app:layout_constraintEnd_toStartOf="@id/btnNotifications"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <!-- Notifications Button -->
+    <ImageButton
+        android:id="@+id/btnNotifications"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_notifications"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:tint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

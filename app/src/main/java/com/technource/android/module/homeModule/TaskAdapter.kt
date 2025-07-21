@@ -1,12 +1,16 @@
 package com.technource.android.module.homeModule
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.LinearInterpolator
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -17,10 +21,15 @@ import com.technource.android.databinding.ItemSubtaskBinding
 import com.technource.android.databinding.ItemTaskBinding
 import com.technource.android.local.Task
 import com.technource.android.local.TaskStatus
+import com.technource.android.system_status.SystemStatus
 import com.technource.android.utils.DateFormatter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
+
 
 class TaskAdapter(private val viewModel: TaskViewModel) :
     ListAdapter<Task, TaskAdapter.TaskViewHolder>(TaskDiffCallback()) {
@@ -55,6 +64,13 @@ class TaskAdapter(private val viewModel: TaskViewModel) :
         onTaskExpandedListener = listener
     }
 
+    // Add timeline height listener
+    private var onCardExpandedListener: ((Int) -> Unit)? = null
+
+    fun setOnCardExpandedListener(listener: (Int) -> Unit) {
+        onCardExpandedListener = listener
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val binding = ItemTaskBinding.inflate(
             LayoutInflater.from(parent.context),
@@ -66,198 +82,233 @@ class TaskAdapter(private val viewModel: TaskViewModel) :
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val task = getItem(position)
-        holder.bind(task, task.isExpanded)
+        // SystemStatus.logEvent("TaskAdapter", "Binding task at position $position: ${task.id}")
+        holder.bind(task, task.id == expandedTaskId)
     }
 
-    inner class TaskViewHolder(private val binding: ItemTaskBinding) : RecyclerView.ViewHolder(binding.root) {
+    override fun submitList(list: List<Task>?) {
+        // SystemStatus.logEvent("TaskAdapter", "Submitting new list with ${list?.size ?: 0} items")
+        super.submitList(list)
+    }
+
+    inner class TaskViewHolder(private val binding: ItemTaskBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+    
         init {
-            binding.root.setOnClickListener {
-                val position = bindingAdapterPosition
+            binding.cardTask.setOnClickListener {
+                val position = absoluteAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     val task = getItem(position)
-                    task.isExpanded = !task.isExpanded
-                    expandedTaskId = if (task.isExpanded) task.id else null
-                    onTaskExpandedListener?.invoke(task, task.isExpanded)
-                    notifyItemChanged(position)
+                    // Toggle expansion state
+                    expandedTaskId = if (expandedTaskId == task.id) null else task.id
+                    // Force a full rebind
+                    notifyDataSetChanged()
+                    onTaskExpandedListener?.invoke(task, expandedTaskId == task.id)
                 }
             }
         }
 
         fun bind(task: Task, isExpanded: Boolean) {
-            // Set card elevation based on status
-            val cardView = binding.root as MaterialCardView
-            cardView.elevation = when (task.status) {
-                TaskStatus.RUNNING -> 8f
-                TaskStatus.UPCOMING -> 4f
-                else -> 2f
-            }
+            try {
+                // Add this near the start of the bind function
+                (binding.cardTask as MaterialCardView).setCardBackgroundColor(
+                    getCategoryColor(task.category)
+                )
 
-            // Set category indicator color
-            binding.categoryIndicator.setBackgroundColor(getCategoryColor(task.category))
-
-            // Set task details using DateFormatter
-            binding.textViewTitle.text = task.title
-            binding.textViewStartTime.text = try {
-                val startTime = DateFormatter.parseIsoDateTime(task.startTime)
-                DateFormatter.formatDisplayTime(startTime)
-            } catch (e: Exception) {
-                "Invalid time"
-            }
-
-            // Calculate completion status
-            val completionStatus = task.subtasks?.let {
-                if (it.isEmpty()) 0f
-                else it.count { subtask -> subtask.completionStatus == 1.0f }.toFloat() / it.size
-            } ?: task.completionStatus
-
-            // Set progress indicator
-            binding.progressTask.progress = (completionStatus * 100).toInt()
-
-            // Set dot color and blinking based on status
-            val isBlinking = task.status == TaskStatus.RUNNING
-            when (task.status) {
-                TaskStatus.LOGGED -> binding.taskDot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.status_completed))
-                TaskStatus.MISSED -> binding.taskDot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.status_missed))
-                TaskStatus.RUNNING -> {
-                    val alpha = (128 + (127 * blinkValue)).toInt()
-                    binding.taskDot.setBackgroundColor(Color.argb(alpha, 25, 118, 210)) // Blinking In Progress
-                }
-                TaskStatus.UPCOMING -> binding.taskDot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.status_upcoming))
-                TaskStatus.SYSTEM_FAILURE -> binding.taskDot.setBackgroundColor(Color.parseColor("#FF00FF")) // Magenta
-                null -> binding.taskDot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.status_upcoming))
-            }
-
-            // Always use detailed view
-            binding.textViewDuration.visibility = View.GONE
-            binding.layoutDetailedInfo.visibility = View.VISIBLE
-
-            // Set score
-            binding.textViewScore.text = "${task.taskScore.toInt()}/${task.subtasks?.sumOf { it.baseScore } ?: 0}"
-
-            // Set measurement type
-            val measureTypeText = task.subtasks?.firstOrNull()?.measurementType?.capitalize() ?: ""
-            binding.textViewMeasureType.text = measureTypeText
-
-            // Handle expanded state
-            if (isExpanded) {
-                expandView(binding.layoutExpandedContent)
-
-                // Set subtasks
-                if (!task.subtasks.isNullOrEmpty()) {
-                    binding.layoutSubtasks.visibility = View.VISIBLE
-                    binding.layoutSubtasks.removeAllViews()
-
-                    task.subtasks.forEach { subtask ->
-                        val subtaskBinding = ItemSubtaskBinding.inflate(
-                            LayoutInflater.from(binding.root.context),
-                            binding.layoutSubtasks,
-                            false
-                        )
-
-                        subtaskBinding.textViewSubtaskText.text = subtask.title
-                        subtaskBinding.imageViewStatus.setImageResource(
-                            if (subtask.completionStatus == 1.0f) R.drawable.ic_circle_completed
-                            else R.drawable.ic_circle_incomplete
-                        )
-
-                        if (subtask.completionStatus == 1.0f) {
-                            subtaskBinding.textViewSubtaskText.apply {
-                                setTextColor(ContextCompat.getColor(context, R.color.text_muted))
-                                paintFlags = paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
-                            }
-                        }
-
-                        // Display measurement details
-                        when (subtask.measurementType) {
-                            "binary" -> {
-                                subtaskBinding.textViewSubtaskText.append(
-                                    " (Yes/No: ${subtask.binary?.completed?.toString() ?: "Pending"})"
-                                )
-                            }
-                            "time" -> {
-                                subtaskBinding.textViewSubtaskText.append(
-                                    " (${subtask.time?.timeSpent ?: 0}/${subtask.time?.setDuration}m)"
-                                )
-                            }
-                            "quant" -> {
-                                subtaskBinding.textViewSubtaskText.append(
-                                    " (${subtask.quant?.achievedValue ?: 0}/${subtask.quant?.targetValue} ${subtask.quant?.targetUnit})"
-                                )
-                            }
-                            "deepwork" -> {
-                                subtaskBinding.textViewSubtaskText.append(
-                                    " (Score: ${subtask.deepwork?.deepworkScore ?: "Pending"})"
-                                )
-                            }
-                        }
-
-                        binding.layoutSubtasks.addView(subtaskBinding.root)
-                    }
+                // Show gradient background for RUNNING tasks
+                binding.gradientBackground.visibility = if (task.status == TaskStatus.RUNNING) {
+                    View.VISIBLE
                 } else {
-                    binding.layoutSubtasks.visibility = View.GONE
+                    View.GONE
                 }
-            } else {
-                collapseView(binding.layoutExpandedContent)
+
+                // Set category indicator with safe color parsing
+                binding.categoryIndicator.setBackgroundColor(
+                    try {
+                        getCategoryColor(task.category)
+                    } catch (e: Exception) {
+                        Color.GRAY // Default color for category
+                    }
+                )
+
+                binding.categoryIndicator.setBackgroundColor(
+                 when (task.status) {
+                TaskStatus.LOGGED -> ContextCompat.getColor(binding.root.context, R.color.status_logged)
+                TaskStatus.MISSED -> ContextCompat.getColor(binding.root.context, R.color.status_missed)
+                TaskStatus.RUNNING -> ContextCompat.getColor(binding.root.context, R.color.status_running)
+                TaskStatus.UPCOMING -> ContextCompat.getColor(binding.root.context, R.color.status_upcoming)
+                TaskStatus.SYSTEM_FAILURE -> ContextCompat.getColor(itemView.context, R.color.status_system_failure)
+                null -> ContextCompat.getColor(binding.root.context, R.color.status_upcoming)
+            }
+        )
+
+
+                // Safely set text fields with null checks
+                binding.textViewTitle.text = task.title ?: "Untitled Task"
+
+                // Make sure time is being set and visible
+                binding.textViewStartTime.apply {
+                    visibility = View.VISIBLE
+                    text = if (task.endTime != null) {
+                        "${viewModel.formatTime(task.startTime)} - ${viewModel.formatTime(task.endTime)}"
+                    } else {
+                        viewModel.formatTime(task.startTime)
+                    }
+                }
+                // Log.d("TimeDebug", "Start Time: ${task.startTime}")
+                // Log.d("TimeDebug", "Formatted Time: ${viewModel.formatTime(task.startTime)}")
+
+                // Set progress with safe calculation
+                val completionStatus = task.subtasks?.let {
+                    if (it.isEmpty()) 0f
+                    else it.count { subtask -> subtask.completionStatus == 1.0f }.toFloat() / it.size
+                } ?: task.completionStatus ?: 0f
+
+                binding.progressTask.progress = (completionStatus * 100).toInt()
+
+                // Set dot color and blinking based on status
+                val isBlinking = task.status == TaskStatus.RUNNING
+                when (task.status) {
+                    TaskStatus.LOGGED -> binding.taskDot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.status_completed))
+                    TaskStatus.MISSED -> binding.taskDot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.status_missed))
+                    TaskStatus.RUNNING -> {
+                        val alpha = (128 + (127 * blinkValue)).toInt()
+                        binding.taskDot.setBackgroundColor(Color.argb(alpha, 25, 118, 210)) // Blinking In Progress
+                    }
+                    TaskStatus.UPCOMING -> binding.taskDot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.status_upcoming))
+                    TaskStatus.SYSTEM_FAILURE -> binding.taskDot.setBackgroundColor(Color.MAGENTA)
+                    null -> binding.taskDot.setBackgroundColor(ContextCompat.getColor(binding.root.context, R.color.status_upcoming))
+                }
+
+                // Always use detailed view
+                binding.textViewDuration.visibility = View.GONE
+                binding.layoutDetailedInfo.visibility = View.VISIBLE
+
+                // Calculate achieved score (current task score)
+                val achievedScore = task.taskScore.toInt()
+                
+                // Calculate net possible score (sum of all subtask base scores)
+                val netPossibleScore = task.subtasks?.sumOf { it.baseScore } ?: 0
+
+                // Set score in achieved/possible format
+                binding.textViewScore.text = "$achievedScore/$netPossibleScore"
+
+                // Set measurement type
+                val measureTypeText = task.subtasks?.firstOrNull()?.measurementType?.capitalize() ?: ""
+                binding.textViewMeasureType.text = measureTypeText
+
+                // Handle expanded state
+                binding.layoutExpandedContent.apply {
+                    if (isExpanded) {
+                        visibility = View.VISIBLE
+                        binding.layoutSubtasks.removeAllViews()
+                        task.subtasks?.forEach { subtask ->
+                            val subtaskBinding = ItemSubtaskBinding.inflate(
+                                LayoutInflater.from(context),
+                                binding.layoutSubtasks,
+                                false
+                            )
+                            subtaskBinding.textViewSubtaskText.text = subtask.title
+                            subtaskBinding.imageViewStatus.setImageResource(
+                                if (subtask.completionStatus == 1.0f)
+                                    R.drawable.ic_circle_completed
+                                else R.drawable.ic_circle_incomplete
+                            )
+                            binding.layoutSubtasks.addView(subtaskBinding.root)
+                        }
+                    } else {
+                        visibility = View.GONE
+                    }
+                }
+            } catch (e: Exception) {
+                // Log any binding errors for debugging
+                e.printStackTrace()
             }
         }
 
+       
+       
+        fun formatTime(dateString: String): String {
+         try {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        inputFormat.timeZone = TimeZone.getTimeZone("UTC")
+        val date = inputFormat.parse(dateString) ?: return ""
+
+        val outputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        return outputFormat.format(date)
+        } catch (e: Exception) {
+        return ""
+          }
+         }
+
         private fun expandView(view: View) {
             view.visibility = View.VISIBLE
-            view.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            val targetHeight = view.measuredHeight
-            view.layoutParams.height = 0
-            view.alpha = 0f
+            
+            // Get parent width safely
+            val parent = view.parent as? View
+            val parentWidth = parent?.width ?: 0
+            
+            view.measure(
+                View.MeasureSpec.makeMeasureSpec(parentWidth, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+            val targetHeight = view.measuredHeight.coerceAtMost(500) // Increased max height
 
-            val animator = ValueAnimator.ofInt(0, targetHeight)
-            animator.addUpdateListener {
-                view.layoutParams.height = it.animatedValue as Int
+            val anim = ValueAnimator.ofInt(0, targetHeight)
+            anim.duration = 300 // Increased duration
+            anim.interpolator = AccelerateDecelerateInterpolator()
+            anim.addUpdateListener { animation ->
+                val height = animation.animatedValue as Int
+                val layoutParams = view.layoutParams
+                layoutParams.height = height
+                view.layoutParams = layoutParams
                 view.requestLayout()
-                val progress = (it.animatedValue as Int).toFloat() / targetHeight.toFloat()
-                view.alpha = progress
             }
-            animator.interpolator = AccelerateDecelerateInterpolator()
-            animator.duration = 300
-            animator.start()
+            anim.start()
         }
 
         private fun collapseView(view: View) {
             val initialHeight = view.measuredHeight
-            val animator = ValueAnimator.ofInt(initialHeight, 0)
-            animator.addUpdateListener {
-                view.layoutParams.height = it.animatedValue as Int
+            val anim = ValueAnimator.ofInt(initialHeight, 0)
+            anim.duration = 300
+            anim.interpolator = AccelerateDecelerateInterpolator()
+            anim.addUpdateListener { animation ->
+                val height = animation.animatedValue as Int
+                val layoutParams = view.layoutParams
+                layoutParams.height = height
+                view.layoutParams = layoutParams
                 view.requestLayout()
-                val progress = 1 - (it.animatedValue as Int).toFloat() / initialHeight.toFloat()
-                view.alpha = 1 - progress
             }
-            animator.addListener(object : android.animation.AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: android.animation.Animator) {
+            anim.addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
                     view.visibility = View.GONE
+                    val layoutParams = view.layoutParams
+                    layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                    view.layoutParams = layoutParams
                 }
             })
-            animator.interpolator = AccelerateDecelerateInterpolator()
-            animator.duration = 300
-            animator.start()
+            anim.start()
         }
     }
 
     // Helper method to get color for task category
     private fun getCategoryColor(category: String?): Int {
         return when (category?.lowercase()) {
-            "work" -> Color.parseColor("#5E35B1") // Deep Purple
-            "personal" -> Color.parseColor("#00897B") // Teal
-            "health" -> Color.parseColor("#D81B60") // Pink
-            "learning" -> Color.parseColor("#FB8C00") // Orange
-            else -> Color.parseColor("#546E7A") // Blue Grey
+            "routine" -> Color.argb(20, 25, 118, 210)  // Light Blue with 20% opacity
+            "work" -> Color.argb(20, 46, 125, 50)     // Light Green with 20% opacity
+            "study" -> Color.argb(20, 123, 31, 162)   // Light Purple with 20% opacity
+            else -> Color.argb(20, 25, 118, 210)      // Default to Light Blue
         }
     }
+
+
 
     class TaskDiffCallback : DiffUtil.ItemCallback<Task>() {
         override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean {
             return oldItem.id == newItem.id
         }
-
         override fun areContentsTheSame(oldItem: Task, newItem: Task): Boolean {
-            return oldItem == newItem && oldItem.isExpanded == newItem.isExpanded
+            return oldItem == newItem
         }
     }
 }

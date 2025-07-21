@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="reminder_categories">
+        <item>Personal</item>
+        <item>Work</item>
+        <item>Health</item>
+        <item>Finance</item>
+        <item>Other</item>
+    </string-array>
+</resources>

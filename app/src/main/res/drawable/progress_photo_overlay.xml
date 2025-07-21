@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Semi-transparent background -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/overlay" />
+        </shape>
+    </item>
+    
+    <!-- Center guide rectangle -->
+    <item
+        android:left="40dp"
+        android:right="40dp"
+        android:top="120dp"
+        android:bottom="120dp">
+        <shape android:shape="rectangle">
+            <stroke
+                android:width="@dimen/camera_guide_stroke"
+                android:color="@color/primary"
+                android:dashWidth="10dp"
+                android:dashGap="5dp" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+    
+    <!-- Corner guides -->
+    <item
+        android:left="40dp"
+        android:top="120dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/primary" />
+            <size
+                android:width="20dp"
+                android:height="4dp" />
+        </shape>
+    </item>
+    
+    <item
+        android:left="40dp"
+        android:top="120dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/primary" />
+            <size
+                android:width="4dp"
+                android:height="20dp" />
+        </shape>
+    </item>
+    
+    <!-- Instructions text background -->
+    <item
+        android:left="20dp"
+        android:right="20dp"
+        android:bottom="80dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/semi_transparent" />
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+    
+</layer-list>

@@ -1,13 +1,15 @@
 package com.technource.android
 
 import android.content.Context
+import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.technource.android.local.AppDatabase
 import com.technource.android.local.TaskDao
 import com.technource.android.network.ApiService
-import com.technource.android.ETMS.micro.TTSManager
-import com.technource.android.module.settingsModule.TaskPopulatorTest
+import com.technource.android.eTMS.micro.TaskIterator
 import com.technource.android.utils.PreferencesManager
+import com.technource.android.utils.TTSManager
+import com.technource.android.utils.VoiceAssistantManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,18 +27,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-
-    //testing units
-    @Module
-    @InstallIn(SingletonComponent::class)
-    object AppModule {
-        @Provides
-        @Singleton
-        fun provideTaskPopulatorTest(taskDao: TaskDao): TaskPopulatorTest {
-            return TaskPopulatorTest(taskDao)
-        }
-
-        // Other providers...
+    @Provides
+    @Singleton
+    fun provideTaskIterator(@ApplicationContext context: Context?, taskDao: TaskDao, ttsManager: TTSManager): TaskIterator {
+        return TaskIterator(context!!, taskDao, ttsManager )
     }
 
     @Provides
@@ -95,5 +89,12 @@ object AppModule {
     @Singleton
     fun provideGson(): Gson {
         return Gson()
+    }
+
+    // Add this provider method
+    @Provides
+    @Singleton
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+        return context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
     }
 }

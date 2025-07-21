@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+<!--    <shortcut-->
+<!--        android:shortcutId="get_current_task"-->
+<!--        android:enabled="true"-->
+<!--        android:shortcutShortLabel="@string/shortcut_short_label"-->
+<!--        android:shortcutLongLabel="@string/shortcut_long_label">-->
+<!--        <capability-binding android:key="actions.intent.GET_TASK">-->
+<!--            <parameter-->
+<!--                android:name="task.title"-->
+<!--                android:key="taskName" />-->
+<!--        </capability-binding>-->
+<!--        <intent-->
+<!--            android:action="android.intent.action.VIEW"-->
+<!--            android:targetPackage="com.technource.android"-->
+<!--            android:targetClass="com.technource.android.actions.TaskBroadcastReceiver">-->
+<!--            <extra android:name="taskName" android:value="default_task" />-->
+<!--        </intent>-->
+<!--    </shortcut>-->
+</shortcuts>

@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient_main">
+
+    <com.technource.android.utils.HeaderComponent
+    android:id="@+id/header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_constraintTop_toTopOf="parent"
+    android:elevation="4dp"/>
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+         android:layout_marginTop="56dp"
         android:background="@android:color/transparent"
         app:elevation="0dp">
 
@@ -45,6 +55,8 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+         android:layout_marginTop="56dp"
+        android:layout_marginBottom="56dp"  
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -53,7 +65,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <TextView
                 android:id="@+id/no_data_text"
@@ -64,7 +76,7 @@
                 android:textSize="16sp"
                 android:gravity="center"
                 android:padding="16dp"
-                android:visibility="gone"/>
+                android:visibility="visible"/>
 
             <!-- Medal Achievement Card -->
             <androidx.cardview.widget.CardView
@@ -107,7 +119,7 @@
                             android:id="@+id/medal_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Deep Work Master"
+                            android:text="Deep Work Masterekjeijgpainh"
                             android:textColor="@android:color/white"
                             android:textSize="18sp"
                             android:textStyle="bold" />
@@ -144,36 +156,14 @@
                 android:id="@+id/base_metrics_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:clipToPadding="false"
+                android:paddingHorizontal="8dp"
+                android:visibility="visible"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="2"
-                android:layout_marginBottom="16dp">
-
-                <!-- Base Metric Cards -->
-                <include
-                    android:id="@+id/metric_completion"
-                    layout="@layout/item_metric_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <include
-                    android:id="@+id/metric_score"
-                    layout="@layout/item_metric_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <include
-                    android:id="@+id/metric_efficiency"
-                    layout="@layout/item_metric_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <include
-                    android:id="@+id/metric_focus"
-                    layout="@layout/item_metric_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </androidx.recyclerview.widget.RecyclerView>
+                tools:itemCount="4"
+                tools:listitem="@layout/item_metric_card" />
 
             <!-- Advanced Metrics -->
             <TextView
@@ -189,30 +179,14 @@
                 android:id="@+id/advanced_metrics_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:clipToPadding="false"
+                android:paddingHorizontal="8dp"
+                android:visibility="visible"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="3"
-                android:layout_marginBottom="16dp">
-
-                <!-- Advanced Metric Cards -->
-                <include
-                    android:id="@+id/metric_depth_ratio"
-                    layout="@layout/item_advanced_metric_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <include
-                    android:id="@+id/metric_task_quality"
-                    layout="@layout/item_advanced_metric_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <include
-                    android:id="@+id/metric_efficiency_score"
-                    layout="@layout/item_advanced_metric_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </androidx.recyclerview.widget.RecyclerView>
+                tools:itemCount="3"
+                tools:listitem="@layout/item_metric_card" />
 
             <!-- Charts Section -->
             <LinearLayout
@@ -258,21 +232,17 @@
             android:indeterminateTint="@android:color/white" />
     </FrameLayout>
 
-<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
-<!--        android:id="@+id/bottom_navigation"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="8dp"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:menu="@menu/bottom_nav_menu" />-->
-
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="@color/card_background_dark"
+        android:background="@drawable/bottom_nav_background"
+        android:elevation="8dp"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemTextColor="@color/bottom_nav_item_color"
+        app:itemRippleColor="@color/ripple_color"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,6 +1,7 @@
 package com.technource.android.network
 
 import com.technource.android.local.TaskResponse
+import com.technource.android.module.settingsModule.data.ApiStatus
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -36,7 +37,7 @@ interface ApiService {
      * - DateFormatter: TaskResponse.data.date should be formatted with formatIsoDateTime.
      */
     @PUT("api/timetable")
-    suspend fun sendTasks(@Body taskResponse: TaskResponse): Response<Void>
+    suspend fun sendTasks(@Body taskResponse: TaskResponse): Response<TaskResponse>
 
     /**
      * Fetches default tasks from the backend.
@@ -45,6 +46,15 @@ interface ApiService {
      * - Used to fetch a default timetable (e.g., for initializing the app).
      * - DateFormatter: Not directly used here, but the response's Task objects will use it in toTaskEntity().
      */
-    @GET("api/default_time_table")
+    @GET("api/default_time_table/utc")
     suspend fun getDefaultTasks(): TaskResponse
+
+    /**
+     * Fetches the API status from the backend.
+     * @return ApiStatus object containing the status of the API.
+     * Use Case:
+     * - Used to check the health or status of the API (e.g., for debugging or monitoring).
+     */
+    @GET("/")
+    suspend fun getApiStatus(): ApiStatus
 }

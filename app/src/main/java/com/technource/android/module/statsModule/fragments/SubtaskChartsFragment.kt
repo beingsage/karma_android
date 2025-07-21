@@ -15,8 +15,8 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.technource.android.R
-import com.technource.android.module.statsModule.models.StatsViewModel
-import com.technource.android.module.statsModule.models.SubtaskType
+import com.technource.android.module.statsModule.StatsViewModel
+import com.technource.android.module.statsModule.SubtaskType
 
 class SubtaskChartsFragment : Fragment() {
 

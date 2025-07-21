@@ -1,192 +1,139 @@
 package com.technource.android.module.settingsModule
 
+import android.Manifest
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.gson.Gson
-import com.technource.android.ETMS.micro.DynamicWallpaperTaskIterator
-import com.technource.android.ETMS.micro.MockDataGenerator
 import com.technource.android.R
 import com.technource.android.databinding.ActivitySettingsBinding
+import com.technource.android.eTMS.micro.DynamicWallpaperTaskIterator
+import com.technource.android.utils.TTSManager
+import com.technource.android.eTMS.micro.TaskIterator
+import com.technource.android.eTMS.micro.TaskWidgetProvider
 import com.technource.android.local.AppDatabase
-import com.technource.android.local.TaskDao
-import com.technource.android.local.toTaskEntity
-import com.technource.android.local.Task
 import com.technource.android.local.BinaryMeasurement
 import com.technource.android.local.DeepWorkMeasurement
 import com.technource.android.local.QuantMeasurement
 import com.technource.android.local.SubTask
+import com.technource.android.local.Task
+import com.technource.android.local.TaskDao
+import com.technource.android.local.TaskStatus
 import com.technource.android.local.TimeMeasurement
 import com.technource.android.network.ApiService
 import com.technource.android.system_status.SystemStatus
 import com.technource.android.system_status.SystemStatusActivity
-import com.technource.android.ETMS.micro.TTSManager
-import com.technource.android.ETMS.micro.TaskIterator
-import com.technource.android.utils.DateFormatter
 import com.technource.android.utils.NavigationHelper
+import com.technource.android.utils.NeckbandVibrationUtil
 import com.technource.android.utils.PreferencesManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
-import java.time.ZoneId
 import javax.inject.Inject
+import android.content.SharedPreferences
+import android.os.Build
+import android.view.ViewGroup
+import androidx.core.app.ActivityCompat
+import com.technource.android.utils.HeaderComponent
 
 @AndroidEntryPoint
 class SettingsScreen : AppCompatActivity() {
     private lateinit var binding: ActivitySettingsBinding
-    private lateinit var taskIterator: TaskIterator
-    private var testTasksJob: Job? = null
-    private val testScope = CoroutineScope(Dispatchers.IO) // Persistent scope for testing
-
     @Inject lateinit var database: AppDatabase
     @Inject lateinit var apiService: ApiService
     @Inject lateinit var gson: Gson
     @Inject lateinit var taskDao: TaskDao
     @Inject lateinit var ttsManager: TTSManager
-    @Inject lateinit var taskPopulatorTest: TaskPopulatorTest
+    @Inject lateinit var taskIterator: TaskIterator
+    @Inject lateinit var sharedPreferences: SharedPreferences
 
     private lateinit var bottomNavigation: BottomNavigationView
     private var isDynamicDataVisible = false
-
-    companion object {
-        const val TASK_DURATION_MINUTES = 2L
-        private const val TAG = "SettingsScreen"
-    }
+//    private lateinit var dashboardWebView: WebView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        taskIterator = TaskIterator(this, taskDao, ttsManager)
+        // Ensure root is a ScrollView with a LinearLayout child
+        val scrollView = binding.root as? android.widget.ScrollView
+        val mainContainer = scrollView?.getChildAt(0) as? LinearLayout
+
+        // Add rollback button and dashboardWebView to mainContainer
+        val rollbackButton = android.widget.Button(this).apply {
+            text = "Rollback to Default Timetable"
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(32, 32, 32, 0)
+            }
+        }
+        mainContainer?.addView(rollbackButton)
+
+        val dashboardWebView = WebView(this).apply {
+            settings.javaScriptEnabled = true
+            webViewClient = WebViewClient()
+            loadUrl("file:///android_asset/DashBoard.html")
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                800 // Height in px, adjust as needed
+            )
+        }
+        mainContainer?.addView(dashboardWebView)
+
+        // Create a parent LinearLayout to hold all content
+        val dynamicDataContainer = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.POST_NOTIFICATIONS,
+                    Manifest.permission.CALL_PHONE
+                ),
+                1
+            )
+        }
+        // Get the existing content from the binding root
+        val existingContent = (binding.root as ViewGroup).getChildAt(0)
+        (binding.root as ViewGroup).removeView(existingContent)
+
+        // Add the existing content to main container
+        dynamicDataContainer.addView(existingContent)
+
+        // Set the main container as the only child of the ScrollView
+        (binding.root as ViewGroup).addView(dynamicDataContainer)
 
         // Dynamic wallpaper button
         binding.applyWallpaperButton.setOnClickListener {
-            DynamicWallpaperTaskIterator.applyWallpaperIntent(this)
-            Log.e(TAG, "Applying dynamic wallpaper")
-            Toast.makeText(this, "Applying dynamic wallpaper", Toast.LENGTH_SHORT).show()
-        }
-
-        // Combined populate and update tasks toggle button
-        binding.populateTasksButton.setOnClickListener {
-            if (testTasksJob == null || testTasksJob?.isCancelled == true) {
-                Log.e(TAG, "Starting test tasks: Populating and updating")
-                binding.populateTasksButton.text = "Stop Test Tasks"
-                testTasksJob = testScope.launch {
-                    try {
-                        // Populate test tasks
-                        Log.e(TAG, "Populating test tasks")
-                        taskPopulatorTest.populateTasksForTesting()
-                        SystemStatus.logEvent("SettingsActivity", "Test tasks populated successfully")
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(this@SettingsScreen, "Test tasks populated", Toast.LENGTH_SHORT).show()
-                        }
-
-                        // Start status updates
-                        Log.e(TAG, "Starting test task status updates")
-                        taskPopulatorTest.updateTasksForTesting()
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(this@SettingsScreen, "Test task updates started", Toast.LENGTH_SHORT).show()
-                        }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Test tasks failed: ${e.message}")
-                        SystemStatus.logEvent("SettingsActivity", "Test tasks failed: ${e.message}")
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(this@SettingsScreen, "Test tasks failed", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            } else {
-                Log.e(TAG, "Stopping test tasks: Cancelling updates and clearing tasks")
-                binding.populateTasksButton.text = "Start Test Tasks"
-                testTasksJob?.cancel()
-                testTasksJob = null
-                lifecycleScope.launch(Dispatchers.IO) {
-                    try {
-                        taskDao.clearTasks()
-                        Log.e(TAG, "Cleared all test tasks from database")
-                        SystemStatus.logEvent("SettingsActivity", "Test tasks cleared from database")
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(this@SettingsScreen, "Test tasks stopped and cleared", Toast.LENGTH_SHORT).show()
-                        }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Failed to clear test tasks: ${e.message}")
-                        SystemStatus.logEvent("SettingsActivity", "Failed to clear test tasks: ${e.message}")
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(this@SettingsScreen, "Failed to clear test tasks", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            }
-        }
-
-        // Remove updateTasksButton since it's merged with populateTasksButton
-        // binding.updateTasksButton.visibility = View.GONE // If you want to hide it in the layout
-
-        // Test timetable button
-        binding.testTimetableButton.setOnClickListener {
-            lifecycleScope.launch {
-                try {
-                    Log.e(TAG, "Starting timetable test with 10 tasks")
-                    val timetable = generateFullDayTimetable(taskCount = 10)
-                    insertTimetable(timetable)
-                    startService(Intent(this@SettingsScreen, TaskIteratorService::class.java))
-
-                    var processedTasks = 0
-                    while (processedTasks < timetable.size) {
-                        val statuses = taskIterator.getStatusTimestamps()
-                        processedTasks = statuses.count { it.status == "LOGGED" || it.status == "FAILED" }
-                        kotlinx.coroutines.delay(60000)
-                        Log.e(TAG, "Processed $processedTasks out of ${timetable.size} tasks")
-                        SystemStatus.logEvent("SettingsActivity", "Processed $processedTasks out of ${timetable.size} tasks")
-                    }
-
-                    taskIterator.stop()
-                    deleteTimetable()
-                    Log.e(TAG, "Timetable test completed with $processedTasks tasks processed")
-                    SystemStatus.logEvent("SettingsActivity", "Timetable test completed with $processedTasks tasks processed")
-                    Toast.makeText(this@SettingsScreen, "Timetable test completed", Toast.LENGTH_SHORT).show()
-                } catch (e: Exception) {
-                    Log.e(TAG, "Timetable test failed: ${e.message}")
-                    SystemStatus.logEvent("SettingsActivity", "Timetable test failed: ${e.message}")
-                    taskIterator.stop()
-                    deleteTimetable()
-                    Toast.makeText(this@SettingsScreen, "Timetable test failed", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch(Dispatchers.Default) {
+                DynamicWallpaperTaskIterator.applyWallpaperIntent(this@SettingsScreen)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@SettingsScreen, "Wallpaper updated", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
         setupPreferenceToggles()
-
-        binding.startTaskIteratorButton.setOnClickListener {
-            lifecycleScope.launch {
-                Log.e(TAG, "Starting task iterator")
-                taskIterator.start()
-                binding.startTaskIteratorButton.isEnabled = false
-                binding.stopTaskIteratorButton.isEnabled = true
-                Toast.makeText(this@SettingsScreen, "Task iterator started", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        binding.stopTaskIteratorButton.setOnClickListener {
-            Log.e(TAG, "Stopping task iterator")
-            taskIterator.stop()
-            binding.startTaskIteratorButton.isEnabled = true
-            binding.stopTaskIteratorButton.isEnabled = false
-            Toast.makeText(this@SettingsScreen, "Task iterator stopped", Toast.LENGTH_SHORT).show()
-        }
-        binding.stopTaskIteratorButton.isEnabled = false
 
         binding.viewSystemStatusButton.setOnClickListener {
             Log.e(TAG, "Navigating to SystemStatusActivity")
@@ -201,193 +148,175 @@ class SettingsScreen : AppCompatActivity() {
             isDynamicDataVisible = !isDynamicDataVisible
             binding.btnViewDynamicData.text = if (isDynamicDataVisible) "Hide Dynamic Data" else "View Dynamic Data"
             Log.e(TAG, "Toggling dynamic data visibility: $isDynamicDataVisible")
+            NeckbandVibrationUtil.triggerHiddenVibration(this)
             updateDynamicDataComposeView()
         }
 
         updateDynamicDataComposeView()
 
-        binding.btnDebugTts.setOnClickListener {
-            lifecycleScope.launch(Dispatchers.IO) {
-                try {
-                    val hinglishMessage =
-                        "Meeting at 9:00 AM!! Bring 100kg of materials (1st priority). Email: test@example.com"
-                    val processedText = ttsManager.preprocessText(hinglishMessage)
-                    withContext(Dispatchers.Main) {
-                        ttsManager.speakHinglish(processedText)
-                        Log.e(TAG, "Hinglish TTS triggered: $processedText")
-                        SystemStatus.logEvent("SettingsActivity", "Hinglish TTS triggered")
-                        Toast.makeText(this@SettingsScreen, "TTS triggered", Toast.LENGTH_SHORT).show()
-                    }
-                } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        Log.e(TAG, "TTS error: ${e.message}")
-                        SystemStatus.logEvent("SettingsActivity", "TTS error: ${e.message}")
-                        Toast.makeText(this@SettingsScreen, "TTS error", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        }
-
-        binding.btnDebugWallpaper.setOnClickListener {
+        binding.btnDebugWidget.setOnClickListener {
             lifecycleScope.launch {
                 try {
-                    // Use the mock data generator instead
-                    MockDataGenerator.updateWidgetWithMockData(this@SettingsScreen)
+                    binding.btnDebugWidget.isEnabled = false
+                    binding.btnDebugWidget.text = "Loading..."
 
-                    Log.e(TAG, "Debug wallpaper update triggered with mock tasks")
-                    SystemStatus.logEvent(
-                        "SettingsActivity",
-                        "Debug wallpaper update triggered with mock tasks"
+                    // Create sample test data
+                    val now = LocalDateTime.now()
+                    val testTasks = listOf(
+                        Task(
+                            id = "task_1",
+                            title = "Study Mathematics",
+                            category = "study",
+                            color = "#96CEB4",  // Soft green
+                            startTime = now.toString(),
+                            endTime = now.plusHours(1).toString(),
+                            duration = 3600,
+                            taskScore = 45.0f,
+                            taskId = "t1",
+                            isExpanded = false,
+                            completionStatus = 0.0f,
+                            status = TaskStatus.RUNNING,
+                            subtasks = listOf(
+                                SubTask(
+                                    id = "sub_1",
+                                    title = "Complete Practice Problems",
+                                    measurementType = "binary",
+                                    baseScore = 20,
+                                    completionStatus = 0f,
+                                    finalScore = 0f,
+                                    subTaskId = "st1",
+                                    binary = BinaryMeasurement(completed = false),
+                                    time = null,
+                                    quant = null,
+                                    deepwork = null
+                                ),
+                                SubTask(
+                                    id = "sub_2",
+                                    title = "Review Theory",
+                                    measurementType = "time",
+                                    baseScore = 25,
+                                    completionStatus = 0f,
+                                    finalScore = 0f,
+                                    subTaskId = "st2",
+                                    binary = null,
+                                    time = TimeMeasurement(
+                                        setDuration = 1800,  // 30 minutes
+                                        timeSpent = 0
+                                    ),
+                                    quant = null,
+                                    deepwork = null
+                                )
+                            )
+                        ),
+                        Task(
+                            id = "task_2",
+                            title = "Deep Work Session",
+                            category = "work",
+                            color = "#FFEEAD",  // Soft yellow
+                            startTime = now.plusHours(1).toString(),
+                            endTime = now.plusHours(2).toString(),
+                            duration = 3600,
+                            taskScore = 60.0f,
+                            taskId = "t2",
+                            isExpanded = false,
+                            completionStatus = 0.0f,
+                            status = TaskStatus.UPCOMING,
+                            subtasks = listOf(
+                                SubTask(
+                                    id = "sub_3",
+                                    title = "Project Development",
+                                    measurementType = "deepwork",
+                                    baseScore = 40,
+                                    completionStatus = 0f,
+                                    finalScore = 0f,
+                                    subTaskId = "st3",
+                                    binary = null,
+                                    time = null,
+                                    quant = null,
+                                    deepwork = DeepWorkMeasurement(
+                                        template = "pomodoro",
+                                        deepworkScore = 0
+                                    )
+                                ),
+                                SubTask(
+                                    id = "sub_4",
+                                    title = "Documentation",
+                                    measurementType = "quant",
+                                    baseScore = 20,
+                                    completionStatus = 0f,
+                                    finalScore = 0f,
+                                    subTaskId = "st4",
+                                    binary = null,
+                                    time = null,
+                                    quant = QuantMeasurement(
+                                        targetValue = 5,
+                                        targetUnit = "pages",
+                                        achievedValue = 0
+                                    ),
+                                    deepwork = null
+                                )
+                            )
+                        )
                     )
-                    Toast.makeText(this@SettingsScreen, "Wallpaper updated", Toast.LENGTH_SHORT).show()
+
+                    // Update widget with test data
+                    withContext(Dispatchers.Main) {
+                        TaskWidgetProvider.updateHomeScreenWidget(
+                            this@SettingsScreen,
+                            testTasks,
+                            now,
+                            now.plusHours(2)
+                        )
+                        Toast.makeText(this@SettingsScreen, "Widget updated with test data", Toast.LENGTH_SHORT).show()
+                        SystemStatus.logEvent("SettingsScreen", "Widget debug data loaded")
+                    }
                 } catch (e: Exception) {
-                    Log.e(TAG, "Debug wallpaper update failed: ${e.message}")
-                    SystemStatus.logEvent("SettingsActivity", "Debug wallpaper update failed: ${e.message}")
-                    Toast.makeText(this@SettingsScreen, "Wallpaper update failed", Toast.LENGTH_SHORT).show()
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@SettingsScreen, "Widget debug failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        SystemStatus.logEvent("SettingsScreen", "Widget debug failed: ${e.message}")
+                    }
+                } finally {
+                    withContext(Dispatchers.Main) {
+                        binding.btnDebugWidget.isEnabled = true
+                        binding.btnDebugWidget.text = "Debug Widget"
+                    }
                 }
             }
         }
-
-        binding.btnDebugTaskLogger.setOnClickListener {
-            val mockTask = Task(
-                id = "task1",
-                title = "Morning Routine",
-                category = "routine",
-                color = "#FF6B6B",
-                startTime = "2025-04-20T06:00:00.000Z",
-                endTime = "2025-04-20T06:45:00.000Z",
-                duration = 45,
-                subtasks = listOf(
-                    SubTask(
-                        id = "subtask1",
-                        title = "Brush Teeth",
-                        measurementType = "binary",
-                        baseScore = 2,
-                        completionStatus = 1.0f,
-                        finalScore = 2.0f,
-                        binary = BinaryMeasurement(completed = true),
-                        time = null,
-                        quant = null,
-                        deepwork = null,
-                        subTaskId = "subtask_id_1"
-                    ),
-                    SubTask(
-                        id = "subtask2",
-                        title = "Shower",
-                        measurementType = "time",
-                        baseScore = 3,
-                        completionStatus = 1.0f,
-                        finalScore = 3.0f,
-                        binary = null,
-                        time = TimeMeasurement(setDuration = 15, timeSpent = 0),
-                        quant = null,
-                        deepwork = null,
-                        subTaskId = "subtask_id_2"
-                    ),
-                    SubTask(
-                        id = "subtask3",
-                        title = "Run 2km",
-                        measurementType = "quant",
-                        baseScore = 4,
-                        completionStatus = 0.5f,
-                        finalScore = 2.0f,
-                        binary = null,
-                        time = null,
-                        quant = QuantMeasurement(
-                            targetValue = 2,
-                            targetUnit = "km",
-                            achievedValue = 1
-                        ),
-                        deepwork = null,
-                        subTaskId = "subtask_id_3"
-                    ),
-                    SubTask(
-                        id = "subtask4",
-                        title = "Plan Morning",
-                        measurementType = "deepwork",
-                        baseScore = 5,
-                        completionStatus = 0.8f,
-                        finalScore = 4.0f,
-                        binary = null,
-                        time = null,
-                        quant = null,
-                        deepwork = DeepWorkMeasurement(
-                            template = "planning",
-                            deepworkScore = 80
-                        ),
-                        subTaskId = "subtask_id_4"
-                    )
-                ),
-                taskScore = 11.0f,
-                taskId = "task_id_mock",
-                completionStatus = 0.825f
-            )
-            Log.e(TAG, "Logging mock task: ${mockTask.title}")
-            taskIterator.triggerTaskLogger(mockTask)
-            SystemStatus.logEvent("SettingsActivity", "Task logged: ${mockTask.title}, Category: ${mockTask.category}, Subtasks: ${mockTask.subtasks?.joinToString { it.title }}")
-            Toast.makeText(this, "Task logged", Toast.LENGTH_SHORT).show()
+        // --- Add Rollback Button Programmatically ---
+        rollbackButton.setOnClickListener {
+            lifecycleScope.launch {
+                // Send a broadcast or bind to the service and call rollback
+                val intent = Intent(this@SettingsScreen, com.technource.android.eTMS.macro.EternalTimeTableUnitService::class.java)
+                intent.action = "ACTION_ROLLBACK_TO_DEFAULT"
+                startService(intent)
+                Toast.makeText(this@SettingsScreen, "Rollback to default timetable scheduled for today", Toast.LENGTH_SHORT).show()
+            }
         }
 
         bottomNavigation = findViewById(R.id.bottom_navigation)
         NavigationHelper.setupBottomNavigation(this, bottomNavigation)
-    }
 
-    private fun generateFullDayTimetable(taskCount: Int = 10): List<Task> {
-        val tasks = mutableListOf<Task>()
-        val now = LocalDateTime.now(ZoneId.systemDefault())
-        val startTime = now
-
-        for (i in 0 until taskCount) {
-            val taskStartTime = startTime.plusMinutes(i * TASK_DURATION_MINUTES)
-            val taskEndTime = taskStartTime.plusMinutes(TASK_DURATION_MINUTES)
-            val task = Task(
-                id = "task_$i",
-                title = "Task ${i + 1}",
-                category = "routine",
-                color = "#FF6B6B",
-                startTime = DateFormatter.formatIsoDateTime(taskStartTime),
-                endTime = DateFormatter.formatIsoDateTime(taskEndTime),
-                duration = TASK_DURATION_MINUTES.toInt(),
-                subtasks = listOf(
-                    SubTask(
-                        id = "subtask_${i}_1",
-                        title = "Subtask ${i + 1}",
-                        measurementType = "binary",
-                        baseScore = 2,
-                        completionStatus = 0.0f,
-                        finalScore = 0.0f,
-                        binary = BinaryMeasurement(completed = null),
-                        time = null,
-                        quant = null,
-                        deepwork = null,
-                        subTaskId = "subtask_id_${i}_1"
-                    )
-                ),
-                taskScore = 0f,
-                taskId = "task_id_$i",
-                completionStatus = 0f
-            )
-            tasks.add(task)
-        }
-        Log.e(TAG, "Generated timetable with ${tasks.size} tasks")
-        return tasks
-    }
-
-    private suspend fun insertTimetable(tasks: List<Task>) {
-        withContext(Dispatchers.IO) {
-            taskDao.insertTasks(tasks.map { it.toTaskEntity() })
-            Log.e(TAG, "Inserted ${tasks.size} tasks into TaskDao")
-            SystemStatus.logEvent("SettingsActivity", "Inserted ${tasks.size} tasks into TaskDao")
+        val header = findViewById<HeaderComponent>(R.id.header)
+        
+        // Set the title
+        header.setTitle("Settings")
+        
+        // Set system status
+        header.setSystemStatus(HeaderComponent.SystemStatus.NORMAL)
+        
+        // Handle notification clicks
+        header.setOnNotificationClickListener {
+            // Show your notification panel/drawer
+            showNotifications()
         }
     }
 
-    private suspend fun deleteTimetable() {
-        withContext(Dispatchers.IO) {
-            taskDao.clearTasks()
-            Log.e(TAG, "Deleted all tasks from TaskDao")
-            SystemStatus.logEvent("SettingsActivity", "Deleted all tasks from TaskDao")
-        }
+private fun showNotifications() {
+        // Implement your notification display logic here
     }
+
+
 
     private fun setupPreferenceToggles() {
         lifecycleScope.launch {
@@ -447,20 +376,10 @@ class SettingsScreen : AppCompatActivity() {
         binding.dynamicDataComposeView.setContent {
             MaterialTheme {
                 if (isDynamicDataVisible) {
-                    DynamicDataDisplay()
+                    DynamicDataDisplay(apiService)  // Pass the injected apiService
                 }
             }
         }
-    }
-
-    @Composable
-    private fun CompareDefaultTTButton() {
-        Text(text = "Placeholder CompareDefaultTTButton")
-    }
-
-    @Composable
-    private fun DynamicDataDisplay() {
-        Text(text = "Placeholder DynamicDataDisplay")
     }
 
     override fun onResume() {
@@ -469,10 +388,7 @@ class SettingsScreen : AppCompatActivity() {
         Log.e(TAG, "SettingsScreen resumed")
     }
 
-    override fun onDestroy() {
+     override fun onDestroy() {
         super.onDestroy()
-        taskIterator.stop()
-        Log.e(TAG, "SettingsScreen destroyed, stopping task iterator")
-        // Note: testTasksJob is not cancelled here to allow it to persist across navigation
     }
 }

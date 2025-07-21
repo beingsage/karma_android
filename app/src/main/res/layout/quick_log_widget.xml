@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/widget_backgroundddd">
+
+    <TextView
+        android:id="@+id/widget_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Quick Log"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary_text"
+        android:gravity="center"
+        android:layout_marginBottom="12dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <ImageButton
+            android:id="@+id/btn_log_water"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/circular_button_background"
+            android:src="@drawable/ic_water_drop"
+            android:contentDescription="Log Water"
+            android:scaleType="centerInside" />
+
+        <ImageButton
+            android:id="@+id/btn_log_weight"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/circular_button_background"
+            android:src="@drawable/ic_scale"
+            android:contentDescription="Log Weight"
+            android:scaleType="centerInside" />
+
+        <ImageButton
+            android:id="@+id/btn_take_photo"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/circular_button_background"
+            android:src="@drawable/ic_cameraaa"
+            android:contentDescription="Take Photo"
+            android:scaleType="centerInside" />
+
+        <ImageButton
+            android:id="@+id/btn_start_workout"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/circular_button_background"
+            android:src="@drawable/ic_fitness"
+            android:contentDescription="Start Workout"
+            android:scaleType="centerInside" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/widget_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tap to quickly log activities"
+        android:textSize="12sp"
+        android:textColor="@color/secondary_text"
+        android:gravity="center"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>

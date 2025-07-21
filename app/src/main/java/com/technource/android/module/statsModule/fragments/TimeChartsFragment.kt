@@ -19,9 +19,9 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.technource.android.R
-import com.technource.android.module.statsModule.models.DeepWorkPoint
-import com.technource.android.module.statsModule.models.HourlyProductivity
-import com.technource.android.module.statsModule.models.StatsViewModel
+import com.technource.android.module.statsModule.DeepWorkPoint
+import com.technource.android.module.statsModule.HourlyProductivity
+import com.technource.android.module.statsModule.StatsViewModel
 
 
 class TimeChartsFragment : Fragment() {

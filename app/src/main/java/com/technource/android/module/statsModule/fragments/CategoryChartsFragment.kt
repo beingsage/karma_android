@@ -21,9 +21,9 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.technource.android.R
-import com.technource.android.module.statsModule.models.CategoryPerformance
-import com.technource.android.module.statsModule.models.StatsViewModel
-import com.technource.android.module.statsModule.models.TimeDistribution
+import com.technource.android.module.statsModule.CategoryPerformance
+import com.technource.android.module.statsModule.StatsViewModel
+import com.technource.android.module.statsModule.TimeDistribution
 
 class CategoryChartsFragment : Fragment() {
 

@@ -1,133 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:fillViewport="true">
+    android:background="@drawable/screen_gradient_background">
 
-    <LinearLayout
+    <com.technource.android.utils.HeaderComponent
+    android:id="@+id/header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_constraintTop_toTopOf="parent"
+    android:elevation="4dp"/>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="56dp"
+         android:layout_marginTop="56dp"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchTts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enable Text-to-Speech" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchNotifications"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enable Notifications" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchVibration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enable Vibration" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchTaskLogger"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enable Task Logger" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchWidgets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enable Widgets" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchVoiceCommands"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enable Voice Commands" />
+
+            <Button
+                android:id="@+id/viewSystemStatusButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View System Status" />
+
+            <Button
+                android:id="@+id/btn_view_dynamic_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View Dynamic Data" />
+
+         <Button
+        android:id="@+id/btn_debug_widget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Debug Widget" />
+
+            <Button
+                android:id="@+id/apply_wallpaper_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Apply Dynamic Wallpaper" />
+
+
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/composeView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/dynamicDataComposeView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+      <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_gravity="bottom"
+        android:background="@drawable/bottom_nav_background"
+        android:elevation="8dp"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemTextColor="@color/bottom_nav_item_color"
+        app:itemRippleColor="@color/ripple_color"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_nav_menu" />
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switchTts"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Enable Text-to-Speech" />
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switchNotifications"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Enable Notifications" />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switchVibration"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Enable Vibration" />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switchTaskLogger"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Enable Task Logger" />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switchWidgets"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Enable Widgets" />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switchVoiceCommands"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Enable Voice Commands" />
-
-        <Button
-            android:id="@+id/startTaskIteratorButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start Task Iterator" />
-
-        <Button
-            android:id="@+id/stopTaskIteratorButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Stop Task Iterator" />
-
-        <Button
-            android:id="@+id/viewSystemStatusButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="View System Status" />
-
-        <Button
-            android:id="@+id/btn_view_dynamic_data"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="View Dynamic Data" />
-
-        <Button
-            android:id="@+id/btn_debug_tts"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Debug TTS" />
-
-        <Button
-            android:id="@+id/btn_debug_wallpaper"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Debug Wallpaper" />
-
-        <Button
-            android:id="@+id/btn_debug_task_logger"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Debug Task Logger" />
-
-        <Button
-            android:id="@+id/apply_wallpaper_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Apply Dynamic Wallpaper" />
-
-        <Button
-            android:id="@+id/test_timetable_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Test Full-Day Timetable" />
-
-        <Button
-            android:id="@+id/populate_tasks_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Populate Daily Tasks" />
-
-        <Button
-            android:id="@+id/update_tasks_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start Task Status Updates" />
-
-        <androidx.compose.ui.platform.ComposeView
-            android:id="@+id/composeView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <androidx.compose.ui.platform.ComposeView
-            android:id="@+id/dynamicDataComposeView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            app:menu="@menu/bottom_nav_menu" />
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

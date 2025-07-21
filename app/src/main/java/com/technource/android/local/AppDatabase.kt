@@ -3,8 +3,8 @@ package com.technource.android.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.technource.android.ETMS.macro.DefaultTaskDao
-import com.technource.android.ETMS.macro.DefaultTaskEntity
+import com.technource.android.eTMS.macro.DefaultTaskDao
+import com.technource.android.eTMS.macro.DefaultTaskEntity
 
 @Database(entities = [TaskEntity::class, DefaultTaskEntity::class], version = 2)
 @TypeConverters(Converters::class)

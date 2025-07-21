@@ -177,9 +177,7 @@ package com.technource.android.module.miscModule
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -195,9 +193,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.technource.android.R
+import com.technource.android.module.miscModule.miscscreen.Finance.FinanceActivity
+import com.technource.android.module.miscModule.miscscreen.Gym.GymActivity
+import com.technource.android.utils.HeaderComponent
 import com.technource.android.utils.NavigationHelper
 import dagger.hilt.android.AndroidEntryPoint
-//import old.miscscreen.Meditation.MeditationActivity
 
 @AndroidEntryPoint
 class MiscellaneousScreen : AppCompatActivity() {
@@ -207,14 +207,38 @@ class MiscellaneousScreen : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_misc)
 
-        val composeView = findViewById<ComposeView>(R.id.compose_view)
-        composeView.setContent {
-            MiscellaneousScreenContent()
-        }
-
+        // Initialize bottom navigation
         bottomNavigation = findViewById(R.id.bottom_navigation)
         NavigationHelper.setupBottomNavigation(this, bottomNavigation)
+
+        // Find and set up ComposeView
+        findViewById<ComposeView>(R.id.compose_view).setContent {
+            MaterialTheme {
+                // Set the background for the Compose content
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    MiscellaneousScreenContent()
+                }
+            }
+        }
+
+        val header = findViewById<HeaderComponent>(R.id.header)
+
+        // Set the title
+        header.setTitle("Misc")
+
+        // Set system status
+        header.setSystemStatus(HeaderComponent.SystemStatus.NORMAL)
+
+        // Handle notification clicks
+        header.setOnNotificationClickListener {
+            // Show your notification panel/drawer
+            showNotifications()
+        }
     }
+
     override fun onResume() {
         super.onResume()
         NavigationHelper.setupBottomNavigation(this, bottomNavigation)
@@ -222,7 +246,9 @@ class MiscellaneousScreen : AppCompatActivity() {
 }
 
 
-
+  fun showNotifications() {
+        // Implement your notification display logic here
+    }
 
 @Composable
 fun MiscellaneousScreenContent() {
@@ -231,7 +257,7 @@ fun MiscellaneousScreenContent() {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-//            CategorySection("Health & Wellness", getHealthWellnessItems())
+           CategorySection("Health & Wellness", getHealthWellnessItems())
         }
     }
 }
@@ -239,14 +265,14 @@ fun MiscellaneousScreenContent() {
 @Composable
 fun CategorySection(title: String, items: List<CategoryItem>) {
     val context = LocalContext.current
-
     Column {
         Text(text = title, style = MaterialTheme.typography.headlineSmall)
         LazyRow {
             items(items) { item ->
                 CategoryCard(item) {
                     when (item.name) {
-//                        "Meditation" -> context.startActivity(Intent(context, MeditationActivity::class.java))
+                        "Gym" -> context.startActivity(Intent(context, GymActivity::class.java))
+                        "Finance" -> context.startActivity(Intent(context, FinanceActivity::class.java))
                         else -> {
                             // Handle other cases or navigation if needed
                         }
@@ -256,6 +282,16 @@ fun CategorySection(title: String, items: List<CategoryItem>) {
         }
     }
 }
+
+private fun getHealthWellnessItems() = listOf(
+//    CategoryItem("Meditation", R.drawable.ic_meditation, "health", MeditationActivity::class.java)
+      CategoryItem("Gym", R.drawable.ic_gym, "health", GymActivity::class.java) ,
+      CategoryItem("Finance", R.drawable.ic_finance, "finance", FinanceActivity::class.java)
+
+)
+
+
+
 
 @Composable
 fun CategoryCard(item: CategoryItem, onClick: () -> Unit) {
@@ -288,13 +324,3 @@ data class CategoryItem(
     val category: String,
     val activityClass: Class<out ComponentActivity>? = null
 )
-
-
-//private fun getHealthWellnessItems() = listOf(
-//    CategoryItem("Meditation", R.drawable.ic_meditation, "health", MeditationActivity::class.java)
-    // Add other items as needed
-//)
-
-
-
-// make all misc screen components a composable

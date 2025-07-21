@@ -7,19 +7,21 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import androidx.core.content.ContextCompat
+import com.technource.android.eTMS.macro.EternalTimeTableUnitService
 import com.technource.android.module.homeModule.HomeScreen
 import com.technource.android.system_status.SystemStatus
 import com.technource.android.system_status.SystemStatusService
 import com.technource.android.system_status.scheduleStatusCheck
-import com.technource.android.ETMS.micro.TaskNotificationService
-import com.technource.android.utils.Constants
 import com.technource.android.utils.PreferencesManager
-import com.technource.android.ETMS.macro.TaskSyncBackendWorker
+import com.technource.android.utils.FloatingService
+import com.technource.android.utils.PermissionActivity
 import dagger.hilt.android.HiltAndroidApp
 import java.util.Calendar
 
 @HiltAndroidApp
 class TaskApplication : Application() {
+    private var NOTIFICATION_CHANNEL_ID = "task_application"
 
     override fun onCreate() {
         super.onCreate()
@@ -30,18 +32,7 @@ class TaskApplication : Application() {
 
         // Initialize SystemStatus
         SystemStatus.initialize(this)
-        SystemStatus.logEvent("TaskApplication", "Application started")
-
-        // Schedule background sync
-        TaskSyncBackendWorker.schedule(this)
-        SystemStatus.logEvent("TaskApplication", "TaskSyncBackendWorker scheduled")
-
-        // Create notification channel
-        createNotificationChannel()
-
-        // Schedule wake-up at 5:30 AM
-        scheduleWakeUp()
-        scheduleStatusCheck(context = applicationContext)
+        SystemStatus.logEvent("TaskApplication", "Application started") 
 
         // Launch PermissionActivity
         val intent = Intent(this, PermissionActivity::class.java).apply {
@@ -51,61 +42,18 @@ class TaskApplication : Application() {
     }
 
      fun startServices() {
-         // Start SystemStatusService
          startForegroundService(Intent(this, SystemStatusService::class.java))
          SystemStatus.logEvent("TaskApplication", "SystemStatusService started")
 
-         // Start Floating Service
-         startForegroundService(Intent(this, FloatingService::class.java))
-         SystemStatus.logEvent("TaskApplication", "Floating Service started")
+//       Start Floating Service
+//       startForegroundService(Intent(this, FloatingService::class.java))
+//       SystemStatus.logEvent("TaskApplication", "Floating Service started")
 
-         // Start TaskNotificationService
-         startForegroundService(Intent(this, TaskNotificationService::class.java))
-         SystemStatus.logEvent("TaskApplication", "TaskNotificationService started")
+         SystemStatus.logEvent("EternalTimeTableUnitService", "Starting eTMS unit from Task Application")
+         val serviceIntent = Intent(this, EternalTimeTableUnitService::class.java)
+         ContextCompat.startForegroundService(this, serviceIntent)
+
      }
-
-    private fun createNotificationChannel() {
-        val channel = NotificationChannel(
-            Constants.NOTIFICATION_CHANNEL_ID,
-            "Task Notifications",
-            NotificationManager.IMPORTANCE_HIGH
-        ).apply {
-            enableVibration(true)
-            setShowBadge(true)
-            lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-        }
-        getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
-        SystemStatus.logEvent("TaskApplication", "Notification channel created")
-    }
-
-    private fun scheduleWakeUp() {
-        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-        val wakeIntent = Intent(this, HomeScreen::class.java).apply {
-            action = "WAKE_UP_ACTION"
-        }
-        val wakePendingIntent = PendingIntent.getActivity(
-            this,
-            "wake_app".hashCode(),
-            wakeIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 5)
-            set(Calendar.MINUTE, 30)
-            if (before(Calendar.getInstance())) {
-                add(Calendar.DAY_OF_YEAR, 1)
-            }
-        }
-
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            AlarmManager.INTERVAL_DAY,
-            wakePendingIntent
-        )
-        SystemStatus.logEvent("TaskApplication", "Wake-up scheduled at 5:30 AM")
-    }
 
     companion object {
         lateinit var instance: TaskApplication

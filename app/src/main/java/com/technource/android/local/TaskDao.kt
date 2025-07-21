@@ -1,5 +1,6 @@
 package com.technource.android.local
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -15,6 +16,15 @@ import kotlinx.coroutines.flow.Flow
  */
 @Dao
 interface TaskDao {
+
+    //live data flow for home module 
+    @Query("SELECT * FROM tasks")
+    fun getTasksLiveData(): LiveData<List<TaskEntity>>
+ 
+
+
+
+
     /**
      * Inserts a list of tasks into the database.
      * @param tasks List of TaskEntity objects to insert.
@@ -25,6 +35,16 @@ interface TaskDao {
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTasks(tasks: List<TaskEntity>)
+
+    /**
+     * Inserts a single task into the database.
+     * @param task TaskEntity object to insert.
+     * @return Nothing (suspend function).
+     * Use Case:
+     * - Used when a new task is created and needs to be saved to the database.
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTask(task: TaskEntity)
 
     /**
      * Retrieves all tasks from the database.
@@ -131,4 +151,9 @@ interface TaskDao {
     // New query to fetch tasks by status
     @Query("SELECT * FROM tasks WHERE status = :status")
     fun getTasksByStatusFlow(status: String): Flow<List<TaskEntity>>
+
+
+
+    @Query("SELECT * FROM tasks WHERE id = :taskId")
+    suspend fun getTaskById(taskId: String): TaskEntity?
 }

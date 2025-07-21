@@ -1,24 +1,32 @@
-package com.technource.android.module.statsModule.models
+package com.technource.android.module.statsModule
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.technource.android.R
 import com.technource.android.local.AppDatabase
 import com.technource.android.local.Task
 import com.technource.android.local.toTasks
 import com.technource.android.system_status.SystemStatus
+import com.technource.android.utils.DateFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.LocalDate
-import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.ZoneId
 import javax.inject.Inject
 import java.io.Serializable
+import java.text.ParseException
+import java.time.LocalDateTime
+import java.time.format.ResolverStyle
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+import java.util.TimeZone
 
 enum class AchievementType {
     DEEP_WORK,
@@ -47,8 +55,18 @@ data class ScorePoint(val time: String, val expected: Float, val achieved: Float
 data class DeepWorkPoint(val time: String, val required: Float, val achieved: Float)
 data class TimeDistribution(val name: String, val value: Float, val color: String)
 data class CategoryPerformance(val category: String, val scoreAchieved: Float, val scorePossible: Float)
-data class SubtaskType(val type: String, val completed: Int, val total: Int, val score: Float)
-data class RewardPoint(val time: String, val score: Float)
+data class SubtaskType(
+    val type: String,
+    val completed: Int, 
+    val total: Int,
+    val score: Float,
+    val startTime: String = "" // Add startTime field
+)
+data class RewardPoint(
+    val time: String,
+    val score: Float,
+    val startTime: String = "" // Add startTime field
+)
 data class HourlyProductivity(val time: String, val tasks: Int)
 
 data class StatsData(
@@ -64,8 +82,16 @@ data class StatsData(
 
 @HiltViewModel
 class StatsViewModel @Inject constructor(
-    private val database: AppDatabase,
+    private val database: AppDatabase
 ) : ViewModel() {
+    
+    // Ensure direct database observation
+    private val taskDao = database.taskDao()
+    
+    val tasks: LiveData<List<Task>> = taskDao.getTasksLiveData().map { entities ->
+        entities.toTasks()
+    }
+    
     private val _stats = MutableLiveData<StatsData>()
     val stats: LiveData<StatsData> get() = _stats
 
@@ -103,33 +129,66 @@ class StatsViewModel @Inject constructor(
     private val _hourlyProductivityData = MutableLiveData<List<HourlyProductivity>>()
     val hourlyProductivityData: LiveData<List<HourlyProductivity>> get() = _hourlyProductivityData
 
-    init {
-        setupTaskObserver()
-        loadStats()
+    private fun parseDateTime(dateString: String): ZonedDateTime {
+        try {
+            val cleanedDateString = dateString.trim()
+            
+            // Create formatters with strict parsing
+            val isoFormat = DateTimeFormatter.ISO_DATE_TIME
+            val istFormat = DateTimeFormatter.ofPattern("h:mm a, MMM d, yyyy")
+                .withLocale(Locale.ENGLISH)
+                .withZone(ZoneId.of("Asia/Kolkata"))
+                
+            // Try parsing as ISO 8601
+            return try {
+                // Parse directly to ZonedDateTime for ISO format
+                ZonedDateTime.parse(cleanedDateString, isoFormat)
+            } catch (e: Exception) {
+                try {
+                    // Try parsing as IST format
+                    val localDateTime = LocalDateTime.parse(cleanedDateString, istFormat)
+                    localDateTime.atZone(ZoneId.of("Asia/Kolkata"))
+                } catch (e2: Exception) {
+                    SystemStatus.logEvent(
+                        "StatsViewModel",
+                        "Failed to parse date '$cleanedDateString': ${e2.message}"
+                    )
+                    throw IllegalArgumentException("Invalid date format: $cleanedDateString", e2)
+                }
+            }
+        } catch (e: Exception) {
+            SystemStatus.logEvent(
+                "StatsViewModel",
+                "Date parsing failed: $dateString - ${e.message}"
+            )
+            throw e
+        }
     }
 
-    private fun setupTaskObserver() {
-        viewModelScope.launch {
-            try {
-                database.taskDao().getTodayTasksFlow(
-                    LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-                    LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                ).collectLatest { taskEntities ->
-                    val tasks = taskEntities.toTasks()
-                    SystemStatus.logEvent("StatsViewModel", "Task data changed, recalculating stats for ${tasks.size} tasks")
-                    val statsData = calculateDailyStats(tasks)
+    // Add a validation function
+    private fun isValidDateString(dateStr: String): Boolean {
+        return try {
+            parseDateTime(dateStr)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+
+    init {
+        loadStats() // Initial load
+        
+        // Observe task changes
+        tasks.observeForever { newTasks ->
+            viewModelScope.launch {
+                try {
+                    val statsData = calculateDailyStats(newTasks)
                     _stats.postValue(statsData)
-                    _isLoading.postValue(false)
-                    processStatsData(tasks, statsData)
+                    processStatsData(newTasks, statsData)
+                } catch (e: Exception) {
+                    SystemStatus.logEvent("StatsViewModel", "Error processing task update: ${e.message}")
                 }
-            } catch (e: Exception) {
-                SystemStatus.logEvent("StatsViewModel", "Error in task observer: ${e.message}")
-                _stats.postValue(StatsData(
-                    completionRate = 0f,
-                    tasks = emptyList(),
-                    error = "Error observing tasks: ${e.message}"
-                ))
-                _isLoading.postValue(false)
             }
         }
     }
@@ -138,26 +197,23 @@ class StatsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _isLoading.value = true
-                val taskEntities = database.taskDao().getTasks()
-//                val taskEntities = withContext(Dispatchers.IO) {
-//                    database.taskDao().getTodayTasks(
-//                        LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-//                        LocalDate.now().plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-//                    )
-//                }
-
-                val tasks = taskEntities.toTasks()
-                SystemStatus.logEvent("StatsViewModel", "Loading stats for ${tasks.size} tasks")
-                val statsData = calculateDailyStats(tasks)
+                SystemStatus.logEvent("StatsViewModel", "Starting to load stats")
+                
+                // Get tasks directly from database
+                val currentTasks = tasks.value ?: emptyList()
+                
+                val statsData = calculateDailyStats(currentTasks)
                 _stats.value = statsData
                 _isLoading.value = false
-                processStatsData(tasks, statsData)
+                
+                processStatsData(currentTasks, statsData)
+                
             } catch (e: Exception) {
-                SystemStatus.logEvent("StatsViewModel", "Error fetching stats: ${e.message}")
+                SystemStatus.logEvent("StatsViewModel", "Error loading stats: ${e.message}")
                 _stats.value = StatsData(
                     completionRate = 0f,
                     tasks = emptyList(),
-                    error = "Error fetching data: ${e.message}"
+                    error = "Error loading data: ${e.message}"
                 )
                 _isLoading.value = false
             }
@@ -192,37 +248,60 @@ class StatsViewModel @Inject constructor(
                 )
             }
 
-            val completedTasks = tasks.count { it.completionStatus == 1f }
-            val completionRate = if (tasks.isNotEmpty()) completedTasks.toFloat() / tasks.size else 0f
+            // Filter tasks with valid date strings
+            val validTasks = tasks.filter { task ->
+                isValidDateString(task.startTime) && isValidDateString(task.endTime)
+            }.also {
+                if (it.size < tasks.size) {
+                    SystemStatus.logEvent(
+                        "StatsViewModel",
+                        "Filtered out ${tasks.size - it.size} tasks with invalid dates: ${
+                            tasks.filterNot { task -> isValidDateString(task.startTime) && isValidDateString(task.endTime) }
+                                .joinToString { "${it.title} (start: ${it.startTime}, end: ${it.endTime})" }
+                        }"
+                    )
+                }
+            }
 
-            val categoryStats = tasks.groupBy { it.category }.mapValues { entry ->
+            if (validTasks.isEmpty()) {
+                return StatsData(
+                    completionRate = 0f,
+                    tasks = emptyList(),
+                    error = "No tasks with valid dates found"
+                )
+            }
+
+            val completedTasks = validTasks.count { it.completionStatus == 1f }
+            val completionRate = if (validTasks.isNotEmpty()) completedTasks.toFloat() / validTasks.size else 0f
+
+            val categoryStats = validTasks.groupBy { it.category }.mapValues { entry ->
                 val categoryTasks = entry.value
                 val completed = categoryTasks.count { it.completionStatus == 1f }
                 completed.toFloat() / categoryTasks.size
             }
 
-            val durationEfficiency = tasks.map { calculateDurationEfficiency(it) }
-                .average().toFloat().takeIf { it.isFinite() } ?: 0f
-
-            val now = ZonedDateTime.now().toEpochSecond()
-            val tasksBehindSchedule = tasks.count { task ->
+            val now = ZonedDateTime.now(DateFormatter.IST_ZONE).toEpochSecond()
+            val tasksBehindSchedule = validTasks.count { task ->
                 try {
-                    task.completionStatus < 1f && ZonedDateTime.parse(task.endTime).toEpochSecond() < now
+                    val endDateTime = parseDateTime(task.endTime)
+                    task.completionStatus < 1f && endDateTime.toEpochSecond() < now
                 } catch (e: Exception) {
-                    SystemStatus.logEvent("StatsViewModel", "Error checking schedule for task ${task.title}: ${e.message}")
+                    SystemStatus.logEvent(
+                        "StatsViewModel",
+                        "Schedule check failed for task ${task.title}: ${e.message}"
+                    )
                     false
                 }
             }
 
-            val totalScoreObtained = tasks.flatMap { it.subtasks ?: emptyList() }
+            val totalScoreObtained = validTasks.flatMap { it.subtasks ?: emptyList() }
                 .sumByDouble { it.finalScore.toDouble() }.toFloat()
-            val totalScoreAssociated = tasks.flatMap { it.subtasks ?: emptyList() }
+            val totalScoreAssociated = validTasks.flatMap { it.subtasks ?: emptyList() }
                 .sumByDouble { it.baseScore.toDouble() }.toFloat()
 
             return StatsData(
                 completionRate = completionRate,
-                tasks = tasks,
-                durationEfficiency = durationEfficiency,
+                tasks = validTasks,
                 categoryCompletionRates = categoryStats,
                 totalScoreObtained = totalScoreObtained,
                 totalScoreAssociated = totalScoreAssociated,
@@ -238,36 +317,57 @@ class StatsViewModel @Inject constructor(
         }
     }
 
-    private fun calculateDurationEfficiency(task: Task): Float {
-        try {
-            val startTime = ZonedDateTime.parse(task.startTime).toEpochSecond()
-            val endTime = ZonedDateTime.parse(task.endTime).toEpochSecond()
-            val actualDuration = (endTime - startTime) / 60f
-            val expectedDuration = task.duration.toFloat()
-            return if (actualDuration > 0) (expectedDuration / actualDuration).coerceIn(0f, 1f) else 0f
-        } catch (e: Exception) {
-            SystemStatus.logEvent("StatsViewModel", "Error parsing date for task ${task.title}: ${e.message}")
-            return 0f
+//    private fun calculateDurationEfficiency(task: Task): Float {
+//        return try {
+//            if (!isValidDateString(task.startTime) || !isValidDateString(task.endTime)) {
+//                SystemStatus.logEvent("StatsViewModel",
+//                    "Invalid date format - Start: ${task.startTime}, End: ${task.endTime}")
+//                return 0f
+//            }
+//
+//            val startTime = parseDateTime(task.startTime).toEpochSecond()
+//            val endTime = parseDateTime(task.endTime).toEpochSecond()
+//            val actualDuration = (endTime - startTime) / 60f
+//            val expectedDuration = task.duration.toFloat()
+//
+//            if (actualDuration > 0) {
+//                (expectedDuration / actualDuration).coerceIn(0f, 1f)
+//            } else {
+//                0f
+//            }
+//        } catch (e: Exception) {
+//            SystemStatus.logEvent(
+//                "StatsViewModel",
+//                "Error calculating duration efficiency for task ${task.title}: ${e.message}"
+//            )
+//            0f
+//        }
+//    }
+
+    private fun processStatsData(tasks: List<Task>, statsData: StatsData) {
+        viewModelScope.launch {
+            calculateTopAchievement(tasks, statsData)
+            calculateBaseMetrics(tasks)
+            calculateAdvancedMetrics(tasks, statsData)
+            calculateChartData(tasks, statsData)
+            _isLoading.postValue(false)
         }
     }
 
-    private fun processStatsData(tasks: List<Task>, statsData: StatsData) {
-        calculateTopAchievement(tasks, statsData)
-        calculateBaseMetrics(tasks, statsData)
-        calculateAdvancedMetrics(tasks, statsData)
-        calculateChartData(tasks, statsData)
-    }
-
     private fun calculateTopAchievement(tasks: List<Task>, statsData: StatsData) {
-        val completionRate = statsData.completionRate * 100
+        if (tasks.isEmpty()) {
+            _topAchievement.postValue(null)
+            return
+        }
 
+        // Calculate scores
         val deepWorkScore = tasks.flatMap { it.subtasks ?: emptyList() }
             .filter { it.measurementType == "DeepWork" }
-            .sumBy { it.finalScore.toInt() }
+            .sumOf { it.finalScore.toDouble() }
             .toFloat()
 
         val workScore = tasks.filter { it.category == "Work" }
-            .sumByDouble { it.taskScore.toDouble() }
+            .sumOf { it.taskScore.toDouble() }
             .toFloat()
 
         val efficiencyScore = if (statsData.totalScoreAssociated > 0)
@@ -290,7 +390,7 @@ class StatsViewModel @Inject constructor(
             ),
             Achievement(
                 name = "Task Champion",
-                value = completionRate,
+                value = statsData.completionRate * 100, // Fix: use statsData.completionRate instead
                 threshold = 80f,
                 type = AchievementType.TASK_COMPLETION,
                 description = "Excellent at completing planned tasks"
@@ -305,40 +405,47 @@ class StatsViewModel @Inject constructor(
         )
 
         val topAchievement = achievements.maxByOrNull { it.value - it.threshold }
-        if (topAchievement != null && topAchievement.value > topAchievement.threshold) {
-            _topAchievement.postValue(topAchievement)
-        } else {
-            _topAchievement.postValue(null)
-        }
+        _topAchievement.postValue(topAchievement)
     }
 
-    private fun calculateBaseMetrics(tasks: List<Task>, statsData: StatsData) {
-        val completionRate = statsData.completionRate * 100
-        val completedTasks = tasks.count { it.completionStatus >= 1f }
-        val totalTasks = tasks.size
-
-        val overallScore = if (statsData.totalScoreAssociated > 0)
-            statsData.totalScoreObtained / statsData.totalScoreAssociated * 100 else 0f
-
-        val totalTimeAllocated = tasks.sumBy { it.duration } / 60f
-        val efficiencyQuotient = if (totalTimeAllocated > 0)
-            statsData.totalScoreObtained / totalTimeAllocated else 0f
-
-        val focusLevel = completionRate
-
+    private fun calculateBaseMetrics(tasks: List<Task>) {
+        val timeNow = System.currentTimeMillis()
+        
+        // Real completion rate
+        val completionRate = (tasks.sumOf { it.completionStatus.toDouble() } / tasks.size * 100).toInt()
+        
+        // Actual score calculation
+        val achievedScore = tasks.sumOf { task ->
+            task.subtasks?.sumOf { it.finalScore.toDouble() } ?: 0.0
+        }.toInt()
+        
+        val possibleScore = tasks.sumOf { task ->
+            task.subtasks?.sumOf { it.baseScore.toDouble() } ?: 0.0
+        }.toInt()
+        
+        // Real efficiency calculation
+        val totalTimeSpent = tasks.sumOf { task ->
+            val startTime = parseDateTime(task.startTime).toEpochSecond()
+            val endTime = parseDateTime(task.endTime).toEpochSecond()
+            (endTime - startTime).toInt()
+        } / 3600f // Convert to hours
+        
+        val efficiencyQuotient = if(totalTimeSpent > 0) 
+            achievedScore / totalTimeSpent else 0f
+            
         val baseMetrics = listOf(
             Metric(
                 name = "Completion",
-                value = "${completionRate.toInt()}%",
+                value = "$completionRate%",
                 trend = calculateTrend(tasks, "completion"),
-                detail = "$completedTasks/$totalTasks",
+                detail = "${tasks.count { it.completionStatus >= 1f }}/${tasks.size}",
                 icon = R.drawable.ic_target
             ),
             Metric(
                 name = "Score",
-                value = "${overallScore.toInt()}%",
+                value = "${achievedScore}%",
                 trend = calculateTrend(tasks, "score"),
-                detail = "${statsData.totalScoreObtained.toInt()}/${statsData.totalScoreAssociated.toInt()}",
+                detail = "$achievedScore/$possibleScore",
                 icon = R.drawable.ic_star
             ),
             Metric(
@@ -350,17 +457,19 @@ class StatsViewModel @Inject constructor(
             ),
             Metric(
                 name = "Focus",
-                value = "${focusLevel.toInt()}%",
+                value = "${completionRate.toInt()}%",
                 trend = calculateTrend(tasks, "focus"),
                 detail = "consistency",
                 icon = R.drawable.ic_brainn
             )
         )
 
+        SystemStatus.logEvent("StatsViewModel", "Posting ${baseMetrics.size} base metrics")
         _baseMetrics.postValue(baseMetrics)
     }
 
     private fun calculateAdvancedMetrics(tasks: List<Task>, statsData: StatsData) {
+        SystemStatus.logEvent("StatsViewModel", "Calculating advanced metrics for ${tasks.size} tasks")
         val totalScoreFromSubtasks = tasks.flatMap { it.subtasks ?: emptyList() }
             .sumByDouble { it.finalScore.toDouble() }
             .toFloat()
@@ -399,82 +508,140 @@ class StatsViewModel @Inject constructor(
             )
         )
 
+        SystemStatus.logEvent("StatsViewModel", "Posting ${advancedMetrics.size} advanced metrics")
         _advancedMetrics.postValue(advancedMetrics)
     }
 
+    // Update the chart data calculation function:
     private fun calculateChartData(tasks: List<Task>, statsData: StatsData) {
-        val scoreCurveData = tasks.groupBy {
-            ZonedDateTime.parse(it.startTime).toLocalTime().hour / 2 * 2
-        }.map { (hour, groupTasks) ->
-            val expected = groupTasks.sumByDouble { it.taskScore.toDouble() }.toFloat()
-            val achieved = groupTasks.sumByDouble {
-                it.taskScore * it.completionStatus.toDouble()
-            }.toFloat()
-            ScorePoint("${hour.toString().padStart(2, '0')}:00", expected, achieved)
-        }.sortedBy { it.time }
-        _scoreCurveData.postValue(scoreCurveData)
-
-        val deepWorkData = tasks.flatMap { it.subtasks ?: emptyList() }
-            .filter { it.measurementType == "DeepWork" }
-            .groupBy {
-                ZonedDateTime.parse(tasks.first { t -> t.subtasks?.contains(it) == true }.startTime)
-                    .toLocalTime().hour / 2 * 2
-            }.map { (hour, groupSubtasks) ->
-                val required = groupSubtasks.sumBy { it.baseScore }.toFloat()
-                val achieved = groupSubtasks.sumByDouble { it.finalScore.toDouble() }.toFloat()
-                DeepWorkPoint("${hour.toString().padStart(2, '0')}:00", required, achieved)
-            }.sortedBy { it.time }
-        _deepWorkData.postValue(deepWorkData)
-
-        val timeDistributionData = tasks.groupBy { it.category }.map { (category, categoryTasks) ->
-            val hours = categoryTasks.sumBy { it.duration } / 60f
-            TimeDistribution(
-                category,
-                hours,
-                when (category) {
-                    "Work" -> "#6366f1"
-                    "Personal" -> "#f59e0b"
-                    "Fitness" -> "#10b981"
-                    "Leisure" -> "#ec4899"
-                    else -> "#8b5cf6"
+        viewModelScope.launch {
+            val validTasks = tasks.filter { task ->
+                isValidDateString(task.startTime) && isValidDateString(task.endTime)
+            }.also {
+                if (it.size < tasks.size) {
+                    SystemStatus.logEvent(
+                        "StatsViewModel",
+                        "Filtered out ${tasks.size - it.size} tasks with invalid dates for chart data: ${
+                            tasks.filterNot { task -> isValidDateString(task.startTime) && isValidDateString(task.endTime) }
+                                .joinToString { "${it.title} (start: ${it.startTime}, end: ${it.endTime})" }
+                        }"
+                    )
                 }
-            )
-        }
-        _timeDistributionData.postValue(timeDistributionData)
-
-        val categoryData = tasks.groupBy { it.category }.map { (category, categoryTasks) ->
-            val scoreAchieved = categoryTasks.sumByDouble { it.taskScore.toDouble() }.toFloat()
-            val scorePossible = categoryTasks.sumByDouble {
-                (it.subtasks?.sumBy { subtask -> subtask.baseScore } ?: 0).toDouble()
-            }.toFloat()
-            CategoryPerformance(category, scoreAchieved, scorePossible)
-        }
-        _categoryPerformanceData.postValue(categoryData)
-
-        val subtaskTypes = tasks.flatMap { it.subtasks ?: emptyList() }
-            .groupBy { it.measurementType }
-            .map { (type, subtasks) ->
-                val completed = subtasks.count { it.completionStatus >= 1f }
-                val total = subtasks.size
-                val score = subtasks.sumByDouble { it.finalScore.toDouble() }.toFloat()
-                SubtaskType(type, completed, total, score)
             }
-        _subtaskTypeData.postValue(subtaskTypes)
 
-        val rewardCurveData = tasks.groupBy {
-            ZonedDateTime.parse(it.startTime).toLocalTime().hour / 2 * 2
-        }.map { (hour, groupTasks) ->
-            val score = groupTasks.sumByDouble { it.taskScore.toDouble() }.toFloat()
-            RewardPoint("${hour.toString().padStart(2, '0')}:00", score)
-        }.sortedBy { it.time }
-        _rewardCurveData.postValue(rewardCurveData)
+            if (validTasks.isEmpty()) {
+                SystemStatus.logEvent("StatsViewModel", "No valid tasks for chart data")
+                _scoreCurveData.postValue(emptyList())
+                _deepWorkData.postValue(emptyList())
+                _timeDistributionData.postValue(emptyList())
+                _categoryPerformanceData.postValue(emptyList())
+                _subtaskTypeData.postValue(emptyList())
+                _rewardCurveData.postValue(emptyList())
+                _hourlyProductivityData.postValue(emptyList())
+                return@launch
+            }
 
-        val hourlyProductivityData = tasks.groupBy {
-            ZonedDateTime.parse(it.startTime).toLocalTime().hour
-        }.map { (hour, groupTasks) ->
-            HourlyProductivity("${hour.toString().padStart(2, '0')}:00", groupTasks.size)
-        }.sortedBy { it.time }
-        _hourlyProductivityData.postValue(hourlyProductivityData)
+            val scoreCurveData = validTasks.groupBy {
+                parseDateTime(it.startTime).toLocalTime().hour / 2 * 2
+            }.map { (hour, groupTasks) ->
+                val expected = groupTasks.sumByDouble { it.taskScore.toDouble() }.toFloat()
+                val achieved = groupTasks.sumByDouble {
+                    it.taskScore * it.completionStatus.toDouble()
+                }.toFloat()
+                ScorePoint("${hour.toString().padStart(2, '0')}:00", expected, achieved)
+            }.sortedBy { it.time }
+            _scoreCurveData.postValue(scoreCurveData)
+
+            val deepWorkData = validTasks.flatMap { task ->
+                // Map both task and subtask together
+                (task.subtasks ?: emptyList()).map { subtask -> 
+                    Pair(task, subtask)
+                }
+            }.filter { 
+                it.second.measurementType == "DeepWork" 
+            }.groupBy { 
+                // Use parent task's startTime for grouping
+                parseDateTime(it.first.startTime).toLocalDate()
+            }.map { (date, taskSubtaskPairs) ->
+                val required = taskSubtaskPairs.sumByDouble { it.second.baseScore.toDouble() }.toFloat()
+                val achieved = taskSubtaskPairs.sumByDouble { it.second.finalScore.toDouble() }.toFloat()
+                DeepWorkPoint(date.toString(), required, achieved)
+            }.sortedBy { it.time }
+            _deepWorkData.postValue(deepWorkData)
+
+            val timeDistributionData = validTasks.groupBy { task ->
+                parseDateTime(task.startTime).hour / 2
+            }.map { (hour, groupTasks) ->
+                val totalDuration = groupTasks.sumByDouble { task ->
+                    val start = parseDateTime(task.startTime).toEpochSecond()
+                    val end = parseDateTime(task.endTime).toEpochSecond()
+                    (end - start) / 60.0
+                }.toFloat()
+                
+                // Generate proper hex color with # prefix and ensure 6 digits
+                val color = String.format("#%06X", (0xFF000000 or (((hour * 25) shl 16).toLong()) or (((hour * 15) shl 8).toLong()) or ((hour * 20).toLong())).toInt())
+                
+                TimeDistribution(
+                    name = "${hour * 2}:00", 
+                    value = totalDuration,
+                    color = color
+                )
+            }.sortedBy { it.name }
+            _timeDistributionData.postValue(timeDistributionData)
+
+            val categoryPerformanceData = validTasks.groupBy { it.category }
+                .map { (category, groupTasks) ->
+                    val achieved = groupTasks.sumByDouble { it.taskScore * it.completionStatus.toDouble() }.toFloat()
+                    val possible = groupTasks.sumByDouble { it.taskScore.toDouble() }.toFloat()
+                    CategoryPerformance(category, achieved, possible)
+                }.sortedByDescending { it.scoreAchieved }
+            _categoryPerformanceData.postValue(categoryPerformanceData)
+
+            // For subtask types, group by measurementType instead of type
+            val subtaskTypeData = validTasks.flatMap { task -> 
+                task.subtasks?.map { subtask ->
+                    Pair(task, subtask) // Pair subtask with its parent task
+                } ?: emptyList()
+            }.groupBy { 
+                it.second.measurementType // Group by measurementType instead of type
+            }.map { (measurementType, taskSubtaskPairs) ->
+                val completed = taskSubtaskPairs.count { it.second.finalScore >= it.second.baseScore }
+                val total = taskSubtaskPairs.size
+                val score = taskSubtaskPairs.sumByDouble { it.second.finalScore.toDouble() }.toFloat()
+                val startTime = taskSubtaskPairs.firstOrNull()?.first?.startTime ?: "" // Use parent task's startTime
+                SubtaskType(
+                    type = measurementType ?: "Unknown",
+                    completed = completed,
+                    total = total,
+                    score = score,
+                    startTime = startTime
+                )
+            }.sortedByDescending { it.completed }
+            _subtaskTypeData.postValue(subtaskTypeData)
+
+            // For reward curve, use parent task's time
+            val rewardCurveData = validTasks.flatMap { task ->
+                task.subtasks?.filter { it.measurementType == "Reward" }?.map { subtask ->
+                    RewardPoint(
+                        time = task.startTime, // Use parent task's startTime
+                        score = subtask.finalScore
+                    )
+                } ?: emptyList()
+            }.groupBy { it.time }
+            .map { (time, rewards) ->
+                val totalScore = rewards.sumByDouble { it.score.toDouble() }.toFloat()
+                RewardPoint(time = time, score = totalScore)
+            }.sortedBy { it.time }
+            _rewardCurveData.postValue(rewardCurveData)
+
+            val hourlyProductivityData = validTasks.groupBy { task ->
+                parseDateTime(task.startTime).hour
+            }.map { (hour, groupTasks) ->
+                val taskCount = groupTasks.size
+                HourlyProductivity("$hour:00", taskCount)
+            }.sortedBy { it.time }
+            _hourlyProductivityData.postValue(hourlyProductivityData)
+        }
     }
 
     private fun calculateTrend(tasks: List<Task>, metric: String): Float {
@@ -489,6 +656,47 @@ class StatsViewModel @Inject constructor(
             "task_quality" -> 0.4f
             "efficiency_score" -> -0.7f
             else -> 0f
+        }
+    }
+
+    private fun calculateRealTimeStats(tasks: List<Task>) {
+        viewModelScope.launch {
+            try {
+                // Daily stats
+                val todayTasks = tasks.filter {
+                    val taskDate = parseDateTime(it.startTime).toLocalDate()
+                    val today = LocalDate.now()
+                    taskDate == today
+                }
+                
+                // Calculate real metrics
+                val completedTasks = todayTasks.count { it.completionStatus >= 1f }
+                val totalTasks = todayTasks.size
+                val completionRate = if(totalTasks > 0) completedTasks.toFloat() / totalTasks else 0f
+                
+                // Calculate actual score
+                val achievedScore = todayTasks.sumOf { task ->
+                    task.subtasks?.sumOf { subtask -> 
+                        subtask.finalScore.toDouble() 
+                    } ?: 0.0
+                }.toFloat()
+                
+                val possibleScore = todayTasks.sumOf { task ->
+                    task.subtasks?.sumOf { subtask -> 
+                        subtask.baseScore.toDouble()
+                    } ?: 0.0
+                }.toFloat()
+
+                // Update live data
+                _stats.postValue(StatsData(
+                    completionRate = completionRate,
+                    tasks = todayTasks,
+                    totalScoreObtained = achievedScore,
+                    totalScoreAssociated = possibleScore
+                ))
+            } catch (e: Exception) {
+                SystemStatus.logEvent("StatsViewModel", "Error calculating stats: ${e.message}")
+            }
         }
     }
 }

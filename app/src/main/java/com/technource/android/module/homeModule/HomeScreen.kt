@@ -1,15 +1,15 @@
 package com.technource.android.module.homeModule
 
-import android.appwidget.AppWidgetManager
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,9 +18,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.tabs.TabLayout
 import com.technource.android.R
+import com.technource.android.utils.HeaderComponent
 import com.technource.android.local.Task
 import com.technource.android.local.TaskDao
 import com.technource.android.local.TaskStatus
+import com.technource.android.system_status.SystemStatus
 import com.technource.android.utils.DateFormatter
 import com.technource.android.utils.NavigationHelper
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,7 +43,6 @@ class HomeScreen : AppCompatActivity() {
     private lateinit var textViewDate: TextView
     private lateinit var textViewGreeting: TextView
     private lateinit var progressBar: View
-    private lateinit var timelineView: TimelineView
     private lateinit var shimmerFrameLayout: ShimmerFrameLayout
     private lateinit var swipeRefreshLayout: YoutubeSwipeRefreshLayout
     private lateinit var emptyStateView: View
@@ -52,6 +53,11 @@ class HomeScreen : AppCompatActivity() {
     private lateinit var textViewCompletedCount: TextView
     private lateinit var textViewInProgressCount: TextView
     private lateinit var textViewUpcomingCount: TextView
+    private lateinit var textViewCurrentTask: TextView
+
+    // Add a handler for delayed scrolling
+    private val scrollHandler = Handler(Looper.getMainLooper())
+    private var isUserInteracting = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,41 +68,65 @@ class HomeScreen : AppCompatActivity() {
         setupSwipeRefresh()
         setupFabCurrentTask()
 
+        // Add touch listener to detect user interaction
+        recyclerViewTasks.setOnTouchListener { _, _ ->
+            isUserInteracting = true
+            scrollHandler.removeCallbacks(autoScrollRunnable) // Cancel any pending auto-scroll
+            false
+        }
+
+        // Add scroll listener to detect when user stops interacting
+        recyclerViewTasks.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    isUserInteracting = false
+                    scrollHandler.postDelayed(autoScrollRunnable, 3000) // Start auto-scroll after 3 seconds
+                }
+            }
+        })
+
         // Perform heavy setup in a background thread
         lifecycleScope.launch(Dispatchers.Default) {
             setupViews()
             withContext(Dispatchers.Main) {
                 observeViewModel()
                 showSkeletonLoading(true)
-                // Simulate initial loading delay for smoother UX
                 delay(800)
                 viewModel.fetchTasks()
             }
         }
+       val header = findViewById<HeaderComponent>(R.id.header)
+        
+        // Set the title
+        header.setTitle("Home")
+        
+        // Set system status
+        header.setSystemStatus(HeaderComponent.SystemStatus.NORMAL)
+        
+        // Handle notification clicks
+        header.setOnNotificationClickListener {
+            // Show your notification panel/drawer
+            showNotifications()
+        }
+
     }
 
+     private fun showNotifications() {
+        // Implement your notification display logic here
+    }
 
-//    override fun onEnabled(context: Context) {
-//        super.onEnabled(context)
-//        Log.d("TaskWidgetProvider", "Widget enabled")
-//        appContext = context.applicationContext
-//    }
-//
-//    override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-//        Log.d("TaskWidgetProvider", "Widget updating: ${appWidgetIds.joinToString()}")
-//        appContext = context.applicationContext
-//        for (appWidgetId in appWidgetIds) {
-//            updateWidget(context, appWidgetManager, appWidgetId, currentTasks, 0, listOf(0))
-//        }
-//    }
-//
+    // Runnable to perform the auto-scroll
+    private val autoScrollRunnable = Runnable {
+        if (!isUserInteracting) {
+            scrollToCurrentTask()
+        }
+    }
 
     private fun initializeViews() {
         recyclerViewTasks = findViewById(R.id.recyclerViewTasks)
         textViewDate = findViewById(R.id.textViewDate)
         textViewGreeting = findViewById(R.id.textViewGreeting)
         progressBar = findViewById(R.id.progressBar)
-        timelineView = findViewById(R.id.timelineView)
         shimmerFrameLayout = findViewById(R.id.shimmerFrameLayout)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         emptyStateView = findViewById(R.id.emptyStateView)
@@ -104,9 +134,10 @@ class HomeScreen : AppCompatActivity() {
         tabLayout = findViewById(R.id.tabLayout)
         progressDaily = findViewById(R.id.progressDaily)
         textViewProgressPercentage = findViewById(R.id.textViewProgressPercentage)
-        textViewCompletedCount = findViewById(R.id.textViewCompletedCount)
+        textViewCompletedCount = findViewById(R.id.textViewTotalCount)
         textViewInProgressCount = findViewById(R.id.textViewInProgressCount)
         textViewUpcomingCount = findViewById(R.id.textViewUpcomingCount)
+        textViewCurrentTask = findViewById(R.id.textViewCurrentTask)
 
         // Set up bottom navigation
         val bottomNavigation = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottom_navigation)
@@ -114,21 +145,32 @@ class HomeScreen : AppCompatActivity() {
     }
 
     private fun setupTabLayout() {
-        // Add tabs for different categories
-        tabLayout.addTab(tabLayout.newTab().setText("All"))
-        tabLayout.addTab(tabLayout.newTab().setText("Work"))
-        tabLayout.addTab(tabLayout.newTab().setText("Personal"))
-        tabLayout.addTab(tabLayout.newTab().setText("Health"))
-        tabLayout.addTab(tabLayout.newTab().setText("Learning"))
+        tabLayout.removeAllTabs()
+
+        // Add tabs with custom styling
+        val tabs = listOf(
+            "ALL" to null,
+            "ROUTINE" to R.color.category_routine_text,
+            "WORK" to R.color.category_work_text,
+            "STUDY" to R.color.category_study_text
+        )
+
+        tabs.forEach { (text, colorRes) ->
+            tabLayout.addTab(tabLayout.newTab().apply {
+                setText(text)
+                if (colorRes != null) {
+                    setCustomView(createCustomTabView(text, colorRes))
+                }
+            })
+        }
 
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 val category = when (tab.position) {
                     0 -> null // All tasks
-                    1 -> "work"
-                    2 -> "personal"
-                    3 -> "health"
-                    4 -> "learning"
+                    1 -> "routine"
+                    2 -> "work"
+                    3 -> "study"
                     else -> null
                 }
                 filterTasksByCategory(category)
@@ -137,6 +179,15 @@ class HomeScreen : AppCompatActivity() {
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
+    }
+
+    private fun createCustomTabView(text: String, colorRes: Int): View {
+        return layoutInflater.inflate(R.layout.custom_tab, null).apply {
+            findViewById<TextView>(R.id.tabText).apply {
+                setText(text)
+                setTextColor(ContextCompat.getColor(this@HomeScreen, colorRes))
+            }
+        }
     }
 
     private fun setupSwipeRefresh() {
@@ -163,33 +214,26 @@ class HomeScreen : AppCompatActivity() {
     private fun setupViews() {
         taskAdapter = TaskAdapter(viewModel).apply {
             setOnTaskExpandedListener { task, isExpanded ->
-                // Animate expansion/collapse
                 if (isExpanded) {
                     val position = taskAdapter.currentList.indexOf(task)
                     if (position != -1) {
                         recyclerViewTasks.smoothScrollToPosition(position)
-                    }
-                }
-            }
+                      }
+                  }
+              }
         }
 
         recyclerViewTasks.apply {
             layoutManager = LinearLayoutManager(this@HomeScreen)
-            setHasFixedSize(true) // Optimize RecyclerView performance
+            setHasFixedSize(false) // Changed to false to allow dynamic sizing
             adapter = taskAdapter
-
-            // Add animation to items
-            val animation = AnimationUtils.loadAnimation(this@HomeScreen, R.anim.item_animation_from_right)
-            layoutAnimation = android.view.animation.LayoutAnimationController(animation)
         }
-
-        // Connect timeline view with recycler view
-        timelineView.setRecyclerView(recyclerViewTasks)
     }
 
     private fun observeViewModel() {
         // Observe date
         viewModel.todayFormatted.observe(this) { date ->
+            SystemStatus.logEvent("HomeScreen", "Date updated: $date")
             textViewDate.text = date
 
             // Set greeting based on time of day
@@ -205,30 +249,46 @@ class HomeScreen : AppCompatActivity() {
 
         // Observe tasks
         viewModel.tasks.observe(this) { tasks ->
+            SystemStatus.logEvent("HomeScreen", "Tasks updated: ${tasks.size} tasks received")
             showSkeletonLoading(false)
             swipeRefreshLayout.isRefreshing = false
 
-            // Animate the recycler view items in
-            recyclerViewTasks.scheduleLayoutAnimation()
+            try {
+                updateTaskList(tasks)
+                updateTaskStats(tasks)
 
-            updateTaskList(tasks)
-            updateTaskStats(tasks)
-            timelineView.setTasks(tasks)
+                // Show empty state if needed
+                emptyStateView.visibility = if (tasks.isEmpty()) {
+                    SystemStatus.logEvent("HomeScreen", "Showing empty state - no tasks")
+                    View.VISIBLE
+                } else View.GONE
 
-            // Show empty state if needed
-            emptyStateView.visibility = if (tasks.isEmpty()) View.VISIBLE else View.GONE
-
-            // Scroll to current task after a short delay
-            if (tasks.isNotEmpty()) {
-                lifecycleScope.launch {
-                    delay(500) // Wait for layout to complete
-                    scrollToCurrentTask()
+                // Update current task display
+                val currentTask = tasks.firstOrNull { it.status == TaskStatus.RUNNING }
+                SystemStatus.logEvent("HomeScreen", "Current task: ${currentTask?.title ?: "None"}")
+                if (currentTask != null) {
+                    textViewCurrentTask.text = "Current: ${currentTask.title}"
+                    textViewCurrentTask.visibility = View.VISIBLE
+                } else {
+                    textViewCurrentTask.text = "No task is currently running"
+                    textViewCurrentTask.visibility = View.VISIBLE // Show placeholder
                 }
+
+                // Scroll to current task after a short delay
+                if (tasks.isNotEmpty()) {
+                    lifecycleScope.launch {
+                        delay(500)
+                        scrollToCurrentTask()
+                    }
+                }
+            } catch (e: Exception) {
+                SystemStatus.logEvent("HomeScreen", "Error updating UI: ${e.message}")
             }
         }
 
-        // Observe loading state
+        // Add logging to loading state
         viewModel.isLoading.observe(this) { isLoading ->
+            SystemStatus.logEvent("HomeScreen", "Loading state changed: $isLoading")
             progressBar.visibility = if (isLoading && !swipeRefreshLayout.isRefreshing) View.VISIBLE else View.GONE
         }
 
@@ -239,42 +299,90 @@ class HomeScreen : AppCompatActivity() {
                 viewModel.clearError()
             }
         }
+
+        viewModel.missedCount.observe(this) { count ->
+            findViewById<TextView>(R.id.textViewMissedCount).text = count.toString()
+        }
+
+        viewModel.systemFailureCount.observe(this) { count ->
+            findViewById<TextView>(R.id.textViewSystemFailure).text = count.toString()
+        }
+
+        viewModel.netScore.observe(this) { score ->
+            findViewById<TextView>(R.id.textViewNetScore).text = score.toString()
+        }
     }
 
     private fun updateTaskList(tasks: List<Task>) {
-        taskAdapter.submitList(tasks)
+        taskAdapter.submitList(tasks){
+            // Add fade-in animation after the list is updated
+            val animation = AnimationUtils.loadAnimation(this, android.R.anim.fade_in)
+            animation.duration = 300
+            recyclerViewTasks.startAnimation(animation)
+        }
     }
 
     private fun updateTaskStats(tasks: List<Task>) {
-        // Calculate task statistics
-        val completedTasks = tasks.count { it.status == TaskStatus.LOGGED }
-        val inProgressTasks = tasks.count { it.status == TaskStatus.RUNNING }
-        val upcomingTasks = tasks.count { it.status == TaskStatus.UPCOMING }
-        val totalTasks = tasks.size
+        try {
+            // Calculate task statistics with strict status checking
+            val totalTasks = tasks.size  // Total tasks regardless of status
+            
+            // Use strict equality checks for status
+            val completedTasks = tasks.count { it.status == TaskStatus.LOGGED }
+            val runningTasks = tasks.count { it.status == TaskStatus.RUNNING }
+            val upcomingTasks = tasks.count { it.status == TaskStatus.UPCOMING }
+            val missedTasks = tasks.count { it.status == TaskStatus.MISSED }
+            val systemFailures = tasks.count { it.status == TaskStatus.SYSTEM_FAILURE }
 
-        // Update progress indicators
-        if (totalTasks > 0) {
-            val progressPercentage = (completedTasks.toFloat() / totalTasks) * 100
-            progressDaily.progress = progressPercentage.toInt()
-            textViewProgressPercentage.text = "${progressPercentage.toInt()}%"
-        } else {
-            progressDaily.progress = 0
-            textViewProgressPercentage.text = "0%"
+            // Debug logging to check task statuses
+            tasks.forEach { task ->
+                SystemStatus.logEvent("HomeScreen", 
+                    "Task ${task.id}: Title=${task.title}, Status=${task.status}")
+            }
+            
+            // Calculate net score (achieved score) - sum of all task scores
+            val achievedScore = tasks.sumOf { it.taskScore.toInt() }
+            
+            // Calculate total possible score - sum of all subtask base scores
+            val netPossibleScore = tasks.sumOf { task -> 
+                task.subtasks?.sumOf { it.baseScore } ?: 0 
+            }
+
+            // Update UI with new counts
+            textViewCompletedCount.text = completedTasks.toString()
+            textViewInProgressCount.text = completedTasks.toString()
+            textViewUpcomingCount.text = upcomingTasks.toString()
+            findViewById<TextView>(R.id.textViewTotalCount).text = totalTasks.toString()
+            findViewById<TextView>(R.id.textViewMissedCount).text = missedTasks.toString()
+            findViewById<TextView>(R.id.textViewSystemFailure).text = systemFailures.toString()
+            
+            // Update net score display with achieved/possible format
+            findViewById<TextView>(R.id.textViewNetScore).text = "$achievedScore/$netPossibleScore"
+
+            // Update progress percentage based on completed tasks only
+            if (totalTasks > 0) {
+                val progressPercentage = (completedTasks.toFloat() / totalTasks) * 100
+                progressDaily.progress = progressPercentage.toInt()
+                textViewProgressPercentage.text = "${progressPercentage.toInt()}%"
+            } else {
+                progressDaily.progress = 0
+                textViewProgressPercentage.text = "0%"
+            }
+
+        } catch (e: Exception) {
+            SystemStatus.logEvent("HomeScreen", "Error updating stats: ${e.message}")
         }
-
-        // Update task counts
-        textViewCompletedCount.text = completedTasks.toString()
-        textViewInProgressCount.text = inProgressTasks.toString()
-        textViewUpcomingCount.text = upcomingTasks.toString()
     }
 
     private fun filterTasksByCategory(category: String?) {
+        SystemStatus.logEvent("HomeScreen", "Filtering by category: $category")
         viewModel.tasks.value?.let { allTasks ->
             val filteredTasks = if (category != null) {
                 allTasks.filter { it.category.equals(category, ignoreCase = true) }
             } else {
                 allTasks
             }
+            SystemStatus.logEvent("HomeScreen", "Filtered tasks count: ${filteredTasks.size}")
             updateTaskList(filteredTasks)
             updateTaskStats(filteredTasks)
         }
@@ -296,10 +404,10 @@ class HomeScreen : AppCompatActivity() {
                     viewHolder?.itemView?.let { view ->
                         val pulseAnimation = AnimationUtils.loadAnimation(this@HomeScreen, R.anim.pulse_animation)
                         view.startAnimation(pulseAnimation)
-                    }
-                }
-            }
-        } else {
+                      }
+                  }
+              }
+          } else {
             // Find the next upcoming task if no current task
             val upcomingTask = viewModel.tasks.value?.firstOrNull { it.status == TaskStatus.UPCOMING }
             if (upcomingTask != null) {
@@ -323,5 +431,8 @@ class HomeScreen : AppCompatActivity() {
         }
     }
 
-
+    override fun onDestroy() {
+        super.onDestroy()
+        scrollHandler.removeCallbacks(autoScrollRunnable) // Clean up handler callbacks
+    }
 }

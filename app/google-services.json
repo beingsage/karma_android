@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "779754168245",
+    "firebase_url": "https://karmawebv1-default-rtdb.firebaseio.com",
+    "project_id": "karmawebv1",
+    "storage_bucket": "karmawebv1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:779754168245:android:3b9ea15bc15fc531d083fc",
+        "android_client_info": {
+          "package_name": "com.technource.Karma"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "779754168245-vueno4ip3tsl84iv8pcfmbhaprb9h1bt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaGyJN8nOsyhHsk1BKUaGcYr-RjxJhkbg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "779754168245-vueno4ip3tsl84iv8pcfmbhaprb9h1bt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

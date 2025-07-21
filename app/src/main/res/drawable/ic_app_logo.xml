@@ -1,0 +1,48 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Background Circle -->
+    <path
+        android:fillColor="@color/primary"
+        android:pathData="M54,54m-50,0a50,50 0,1 1,100 0a50,50 0,1 1,-100 0" />
+    
+    <!-- Body Icon -->
+    <group android:translateX="54" android:translateY="54">
+        <!-- Head -->
+        <circle
+            android:fillColor="@color/background"/>
+<!--            android:radius="8" />-->
+<!--            android:cx="0"-->
+<!--            android:cy="-20"-->
+
+        
+        <!-- Body -->
+        <path
+            android:fillColor="@color/background"
+            android:pathData="M-6,-12 L6,-12 L8,12 L6,20 L-6,20 L-8,12 Z" />
+        
+        <!-- Arms -->
+        <path
+            android:fillColor="@color/background"
+            android:pathData="M-6,-8 L-12,-4 L-10,4 L-6,0 Z" />
+        <path
+            android:fillColor="@color/background"
+            android:pathData="M6,-8 L12,-4 L10,4 L6,0 Z" />
+        
+        <!-- Legs -->
+        <path
+            android:fillColor="@color/background"
+            android:pathData="M-4,20 L-6,32 L-2,32 L0,20 Z" />
+        <path
+            android:fillColor="@color/background"
+            android:pathData="M4,20 L6,32 L2,32 L0,20 Z" />
+        
+        <!-- Heart (Health indicator) -->
+        <path
+            android:fillColor="@color/accent_health"
+            android:pathData="M-2,-2 C-2,-4 0,-4 0,-2 C0,-4 2,-4 2,-2 C2,0 0,4 0,4 C0,4 -2,0 -2,-2 Z" />
+    </group>
+</vector>

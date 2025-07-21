@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/goal_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Goal Title"
+        android:textStyle="bold"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/goal_current_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current Amount" />
+
+    <TextView
+        android:id="@+id/goal_target_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Target Amount" />
+
+    <TextView
+        android:id="@+id/goal_deadline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Deadline" />
+
+    <ProgressBar
+        android:id="@+id/goal_progress"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_marginTop="8dp"
+        style="?android:attr/progressBarStyleHorizontal" />
+
+    <TextView
+        android:id="@+id/goal_progress_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Progress"
+        android:layout_marginTop="4dp" />
+</LinearLayout>

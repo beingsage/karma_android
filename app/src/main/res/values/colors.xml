@@ -36,6 +36,7 @@
 <!--    stats resources -->
 
     <!-- App Theme Colors -->
+    <color name="nav_background">#1F1F1F</color>
     <color name="background_start">#FF1A1A1A</color>
     <color name="background_end">#FF2C2C2C</color>
     <color name="card_background">#FFFFFFFF</color>
@@ -105,7 +106,15 @@
     <color name="status_completed">#388E3C</color>
     <color name="status_in_progress">#1976D2</color>
     <color name="status_missed">#F44336</color>
-    <color name="status_upcoming">#9E9E9E</color>
+    <color name="status_upcoming">#808080</color>
+    <color name="status_system_failure">#9C27B0</color>
+    <color name="status_logged">#4CAF50</color>
+    <color name="status_running">#2196F3</color>
+
+    <!-- System Status Colors -->
+    <color name="status_system_normal">#4CAF50</color>
+    <color name="status_system_warning">#FFC107</color>
+    <color name="status_system_error">#F44336</color>
 
     <!-- Progress colors -->
     <color name="progress_indicator">#6200EE</color>
@@ -129,5 +138,251 @@
     <color name="white">#FFFFFF</color>
 
     <!--recheck-->
-    <color name="bottom_nav_item_color">#360197</color>
+    <color name="bottom_nav_item_color">#6200EE</color>
+
+    <!-- Add these new category colors with better visibility -->
+    <color name="category_routine_bg">#E3F2FD</color>  <!-- Light Blue bg -->
+    <color name="category_routine_text">#1976D2</color>  <!-- Darker Blue text -->
+
+    <color name="category_work_bg">#E8F5E9</color>  <!-- Light Green bg -->
+    <color name="category_work_text">#2E7D32</color>  <!-- Darker Green text -->
+
+    <color name="category_study_bg">#F3E5F5</color>  <!-- Light Purple bg -->
+    <color name="category_study_text">#7B1FA2</color>  <!-- Darker Purple text -->
+
+    <!-- Add these colors -->
+    <color name="header_text">@android:color/white</color>
+    <color name="header_icon_tint">@android:color/white</color>
+    <color name="nav_item_selected">#6200EE</color>
+    <color name="nav_item_unselected">#99FFFFFF</color>
+
+
+<!--finance-->
+    <color name="primary_color">#22C55E</color>
+    <color name="secondary_color">#3B82F6</color>
+    <color name="background_light">#F8FAFC</color>
+    <color name="success_green">#22C55E</color>
+    <color name="success_light">#DCFCE7</color>
+    <color name="error_red">#EF4444</color>
+    <color name="error_light">#FEE2E2</color>
+    <color name="warning_yellow">#F59E0B</color>
+    <color name="warning_light">#FEF3C7</color>
+    <color name="info_blue">#3B82F6</color>
+    <color name="info_light">#DBEAFE</color>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Secondary Colors -->
+    <color name="on_secondary">#FFFFFF</color>
+
+    <!-- Background Colors -->
+    <color name="background_variant">#F8FAFC</color>
+
+    <!-- Surface Colors -->
+    <color name="surface_variant">#F1F5F9</color>
+    <color name="on_surface">#1E293B</color>
+    <color name="on_surface_variant">#64748B</color>
+
+    <!-- Error Colors -->
+    <color name="error">#EF4444</color>
+    <color name="error_variant">#DC2626</color>
+    <color name="on_error">#FFFFFF</color>
+
+    <!-- Success Colors -->
+    <color name="success">#10B981</color>
+    <color name="success_variant">#059669</color>
+    <color name="on_success">#FFFFFF</color>
+
+    <!-- Warning Colors -->
+    <color name="warning">#F59E0B</color>
+    <color name="warning_variant">#D97706</color>
+    <color name="on_warning">#FFFFFF</color>
+
+    <!-- Info Colors -->
+    <color name="info">#3B82F6</color>
+    <color name="info_variant">#2563EB</color>
+    <color name="on_info">#FFFFFF</color>
+
+    <!-- Muscle Group Colors -->
+    <color name="muscle_chest">#FF6B6B</color>
+    <color name="muscle_chest_light">#FFE5E5</color>
+    <color name="muscle_back">#4ECDC4</color>
+    <color name="muscle_back_light">#E5F9F7</color>
+    <color name="muscle_legs">#45B7D1</color>
+    <color name="muscle_legs_light">#E5F4FB</color>
+    <color name="muscle_shoulders">#96CEB4</color>
+    <color name="muscle_shoulders_light">#F0F8F4</color>
+    <color name="muscle_arms">#FFEAA7</color>
+    <color name="muscle_arms_light">#FFFBF0</color>
+    <color name="muscle_core">#DDA0DD</color>
+    <color name="muscle_core_light">#F5F0F5</color>
+    <color name="muscle_full_body">#FFB6C1</color>
+    <color name="muscle_full_body_light">#FFF0F2</color>
+
+    <!-- Progress Colors -->
+    <color name="progress_completed">#10B981</color>
+    <color name="progress_in_progress">#F59E0B</color>
+    <color name="progress_upcoming">#E5E7EB</color>
+
+    <!-- Section Colors -->
+    <color name="section_warmup">#FEF3C7</color>
+    <color name="section_warmup_border">#F59E0B</color>
+    <color name="section_exercise">#DBEAFE</color>
+    <color name="section_exercise_border">#3B82F6</color>
+    <color name="section_stretching">#E0E7FF</color>
+    <color name="section_stretching_border">#6366F1</color>
+
+    <!-- Timer Colors -->
+    <color name="timer_active">#10B981</color>
+    <color name="timer_paused">#F59E0B</color>
+    <color name="timer_stopped">#6B7280</color>
+
+    <!-- Button Colors -->
+    <color name="button_start">#10B981</color>
+    <color name="button_pause">#F59E0B</color>
+    <color name="button_stop">#EF4444</color>
+    <color name="button_complete">#6366F1</color>
+
+    <!-- Card Colors -->
+    <color name="card_border">#E5E7EB</color>
+    <color name="card_shadow">#1F29371A</color>
+
+    <!-- Text Colors -->
+    <color name="text_tertiary">#9CA3AF</color>
+    <color name="text_disabled">#D1D5DB</color>
+    <color name="text_link">#3B82F6</color>
+    <color name="text_success">#059669</color>
+    <color name="text_error">#DC2626</color>
+    <color name="text_warning">#D97706</color>
+
+    <!-- Dark Theme Colors -->
+    <color name="dark_background">#0F172A</color>
+    <color name="dark_background_variant">#1E293B</color>
+    <color name="dark_on_background">#F1F5F9</color>
+    <color name="dark_surface">#1E293B</color>
+    <color name="dark_surface_variant">#334155</color>
+    <color name="dark_on_surface">#F1F5F9</color>
+    <color name="dark_on_surface_variant">#94A3B8</color>
+
+    <!-- Overlay Colors -->
+    <color name="overlay_light">#FFFFFF80</color>
+    <color name="overlay_dark">#00000080</color>
+    <color name="scrim">#000000B3</color>
+
+    <!-- Divider Colors -->
+    <color name="divider">#E5E7EB</color>
+    <color name="divider_dark">#374151</color>
+
+    <!-- Ripple Colors -->
+    <color name="ripple_light">#1F29371A</color>
+    <color name="ripple_dark">#F1F5F91A</color>
+
+    <!-- Status Bar Colors -->
+    <color name="status_bar_light">#F8FAFC</color>
+    <color name="status_bar_dark">#0F172A</color>
+
+    <!-- Navigation Bar Colors -->
+    <color name="navigation_bar_light">#FFFFFF</color>
+    <color name="navigation_bar_dark">#1E293B</color>
+
+    <!-- Transparent -->
+    <color name="transparent">#00000000</color>
+
+    <!-- Common Colors -->
+    <color name="gray_50">#F9FAFB</color>
+    <color name="gray_100">#F3F4F6</color>
+    <color name="gray_200">#E5E7EB</color>
+    <color name="gray_300">#D1D5DB</color>
+    <color name="gray_400">#9CA3AF</color>
+    <color name="gray_500">#6B7280</color>
+    <color name="gray_600">#4B5563</color>
+    <color name="gray_700">#374151</color>
+    <color name="gray_800">#1F2937</color>
+    <color name="gray_900">#111827</color>
+
+
+
+
+
+
+
+
+
+    <!-- Primary Colors -->
+    <color name="primary_light">#A5B4FC</color>
+    <color name="primary_dark">#3730A3</color>
+
+    <!-- Secondary Colors -->
+    <color name="secondary_light">#6EE7B7</color>
+    <color name="secondary_dark">#047857</color>
+
+    <!-- Background Colors -->
+    <color name="background_dark">#1F2937</color>
+    <color name="surface_dark">#374151</color>
+
+    <!-- Text Colors -->
+    <color name="primary_text">#111827</color>
+    <color name="primary_text_dark">#F9FAFB</color>
+    <color name="secondary_text">#6B7280</color>
+    <color name="secondary_text_dark">#D1D5DB</color>
+
+    <!-- Accent Colors -->
+    <color name="accent_nutrition">#F59E0B</color>
+    <color name="accent_exercise">#EF4444</color>
+    <color name="accent_health">#EC4899</color>
+    <color name="accent_progress">#8B5CF6</color>
+
+
+    <!-- Transparent Colors -->
+    <color name="semi_transparent">#80000000</color>
+    <color name="overlay">#40000000</color>
+
+    <!-- Widget Colors -->
+    <color name="widget_background">#FFFFFF</color>
+    <color name="widget_background_dark">#374151</color>
+
+    <!-- Card Colors -->
+    <color name="card_border_dark">#4B5563</color>
+
+
+
+
+
+<!--notes colors-->
+    <!-- Base theme colors -->
+    <color name="accent">#FF03DAC5</color>
+    <color name="accent_20">#3303DAC5</color>
+
+    <!-- Background colors -->
+    <color name="card_stroke">#FFEEEEEE</color>
+    <color name="card_stroke_dark">#FF333333</color>
+
+    <!-- Note colors -->
+    <color name="note_yellow">#FFFFF9C4</color>
+    <color name="note_green">#FFE8F5E9</color>
+    <color name="note_blue">#FFE3F2FD</color>
+    <color name="note_purple">#FFF3E5F5</color>
+    <color name="note_pink">#FFFCE4EC</color>
+    <color name="note_orange">#FFFFF3E0</color>
+
+    <!-- Utility colors -->
+    <color name="chip_background">#FFEEEEEE</color>
+    <color name="chip_background_dark">#FF333333</color>
+    <color name="white_70">#B3FFFFFF</color>
+
+    <!-- Priority colors -->
+    <color name="priority_high">#FFE53935</color>
+    <color name="priority_medium">#FFFFB300</color>
+    <color name="priority_low">#FF43A047</color>
+
 </resources>

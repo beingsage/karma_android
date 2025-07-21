@@ -8,6 +8,12 @@ import android.content.pm.PackageManager
 import android.os.Vibrator
 import android.speech.tts.TextToSpeech
 import androidx.core.content.ContextCompat
+import androidx.room.Dao
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -17,15 +23,26 @@ object SystemStatus {
     private lateinit var database: ServiceLogDatabase
     private val scope = CoroutineScope(Dispatchers.IO + Job())
 
+    // --- Add these for rate limiting ---
+    private val lastStatusLogTimes = ConcurrentHashMap<String, Long>()
+    private val lastEventLogTimes = ConcurrentHashMap<String, Long>()
+    private const val RATE_LIMIT_MS = 1000L // 10 seconds per unique log
+
     fun initialize(context: Context) {
         database = ServiceLogDatabase.getDatabase(context)
     }
 
     fun logEvent(serviceName: String, log: String) {
+        val key = "$serviceName|$log"
+        val now = System.currentTimeMillis()
+        val lastTime = lastEventLogTimes[key] ?: 0L
+        if (now - lastTime < RATE_LIMIT_MS) return
+        lastEventLogTimes[key] = now
+
         scope.launch {
             database.serviceLogDao().insertLog(ServiceLog(
                 serviceName = serviceName,
-                timestamp = System.currentTimeMillis(),
+                timestamp = now,
                 log = log,
                 status = "N/A"
             ))
@@ -33,10 +50,16 @@ object SystemStatus {
     }
 
     fun logStatus(serviceName: String, status: String) {
+        val key = "$serviceName|$status"
+        val now = System.currentTimeMillis()
+        val lastTime = lastStatusLogTimes[key] ?: 0L
+        if (now - lastTime < RATE_LIMIT_MS) return
+        lastStatusLogTimes[key] = now
+
         scope.launch {
             database.serviceLogDao().insertLog(ServiceLog(
                 serviceName = serviceName,
-                timestamp = System.currentTimeMillis(),
+                timestamp = now,
                 log = "Status updated to $status",
                 status = status
             ))
@@ -71,3 +94,5 @@ object SystemStatus {
         }
     }
 }
+
+

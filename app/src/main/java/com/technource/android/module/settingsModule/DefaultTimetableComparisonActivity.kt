@@ -9,7 +9,7 @@ import com.technource.android.local.AppDatabase
 import com.technource.android.local.Task
 import com.technource.android.network.ApiService
 import com.technource.android.system_status.SystemStatus
-import com.technource.android.ETMS.macro.DefaultTaskFetcher
+import com.technource.android.eTMS.macro.DefaultTaskFetcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
